@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0b0c0e">
+<title>Админка AI CRAFTS</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <a class="logo" href="index.html">AI CRAFTS</a>
+    <span class="mono muted">админка</span>
+    <div class="sp">
+      <a class="btn ghost sm" href="index.html" target="_blank" rel="noopener">Открыть сайт ↗</a>
+      <button class="btn ghost sm" id="logout" type="button" hidden>Выйти</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="login" hidden>
+    <h1>Вход</h1>
+    <p class="status" id="cfg-warn" hidden>Заполните SUPABASE_URL и SUPABASE_ANON_KEY в файле config.js, затем обновите страницу.</p>
+    <form class="card narrow" id="login-form">
+      <div class="field"><label for="l-email">Email</label><input id="l-email" type="email" autocomplete="username" required></div>
+      <div class="field"><label for="l-pass">Пароль</label><input id="l-pass" type="password" autocomplete="current-password" required></div>
+      <button class="btn" type="submit" id="l-btn">Войти</button>
+      <p class="status" id="l-status" role="status" aria-live="polite"></p>
+    </form>
+  </section>
+
+  <section id="panel" hidden>
+    <h1>Работы и сайты</h1>
+    <div class="tabs" role="tablist" aria-label="Разделы админки">
+      <button type="button" role="tab" id="tab-works" aria-selected="true" aria-controls="p-works">Работы</button>
+      <button type="button" role="tab" id="tab-sites" aria-selected="false" aria-controls="p-sites">Сайты</button>
+      <button type="button" role="tab" id="tab-reel" aria-selected="false" aria-controls="p-reel">Шоурил</button>
+    </div>
+
+    <div id="p-works" role="tabpanel" aria-labelledby="tab-works">
+      <form class="card" id="wf">
+        <h2>Добавить работу</h2>
+        <div class="row2">
+          <div class="field"><label for="w-type">Формат</label>
+            <select id="w-type">
+              <option value="video">Видео</option>
+              <option value="photo">Фото</option>
+              <option value="carousel">Карусель для Instagram</option>
+              <option value="flyer">Флаер</option>
+            </select></div>
+          <div class="field"><label for="w-title">Название</label><input id="w-title" type="text" maxlength="120" required></div>
+        </div>
+        <div class="field"><label for="w-desc">Описание для доступности (необязательно)</label><input id="w-desc" type="text" maxlength="200"></div>
+        <div class="field"><label for="w-file" id="w-file-l">Файл видео</label><input id="w-file" type="file" accept="video/mp4,video/webm"></div>
+        <ul class="pending" id="w-pending" aria-label="Выбранные файлы"></ul>
+        <div class="field" id="w-poster-f"><label for="w-poster">Обложка видео (необязательно, иначе возьмём первый кадр)</label><input id="w-poster" type="file" accept="image/jpeg,image/png,image/webp"></div>
+        <button class="btn" type="submit" id="w-btn">Загрузить работу</button>
+        <p class="status" id="w-status" role="status" aria-live="polite"></p>
+      </form>
+      <h2 class="mt-lg">Загруженные работы</h2>
+      <ul class="items" id="w-list"></ul>
+    </div>
+
+    <div id="p-sites" role="tabpanel" aria-labelledby="tab-sites" hidden>
+      <form class="card" id="sf">
+        <h2>Добавить сайт</h2>
+        <div class="row2">
+          <div class="field"><label for="s-title">Название</label><input id="s-title" type="text" maxlength="120" required></div>
+          <div class="field"><label for="s-url">Ссылка на сайт</label><input id="s-url" type="url" placeholder="https://" ></div>
+        </div>
+        <div class="field"><label for="s-desc">Короткое описание</label><input id="s-desc" type="text" maxlength="200"></div>
+        <div class="field"><label for="s-shot">Скриншот сайта (необязательно)</label><input id="s-shot" type="file" accept="image/jpeg,image/png,image/webp"></div>
+        <button class="btn" type="submit" id="s-btn">Добавить сайт</button>
+        <p class="status" id="s-status" role="status" aria-live="polite"></p>
+      </form>
+      <h2 class="mt-lg">Добавленные сайты</h2>
+      <ul class="items" id="s-list"></ul>
+    </div>
+
+    <div id="p-reel" role="tabpanel" aria-labelledby="tab-reel" hidden>
+      <form class="card" id="rf">
+        <h2>Шоурил на главной</h2>
+        <p class="status note">Видео mp4, лучше горизонтальное, до 50 МБ. Новое видео заменит старое.</p>
+        <div class="field"><label for="r-file">Файл видео (mp4)</label><input id="r-file" type="file" accept="video/mp4"></div>
+        <div class="field"><label for="r-poster">Обложка (необязательно, иначе возьмём первый кадр)</label><input id="r-poster" type="file" accept="image/jpeg,image/png,image/webp"></div>
+        <div class="btn-row">
+          <button class="btn" type="submit" id="r-btn">Загрузить шоурил</button>
+          <button class="btn danger" type="button" id="r-del">Убрать шоурил</button>
+        </div>
+        <p class="status" id="r-status" role="status" aria-live="polite"></p>
+      </form>
+      <div id="r-cur"></div>
+    </div>
+  </section>
+</main>
+
+<script src="config.js" defer></script>
+<script src="js/admin.js" defer></script>
+</body>
+</html>

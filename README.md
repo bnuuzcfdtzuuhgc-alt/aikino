@@ -1,0 +1,31 @@
+# AI CRAFTS
+
+Статичный сайт + одна serverless-функция (`api/chat.js`). Хостинг: GitHub → Vercel.
+
+## Структура
+
+    index.html, admin.html   страницы
+    config.js                публичные настройки (Supabase, Telegram, endpoint формы)
+    css/                     fonts.css, site.css, admin.css
+    js/                      preloader.js, i18n.js (переводы RU/EN), site.js, admin.js
+    fonts/                   шрифты (скачиваются скриптом)
+    api/chat.js              чат-консультант (Groq)
+    vercel.json              заголовки безопасности и CSP
+    security.sql             ограничения бакета (по желанию)
+    404.html, robots.txt     страница ошибки и правила для поисковиков
+
+## Перед деплоем
+
+1. Шрифты: `node scripts/get-fonts.mjs` (нужен Node 18+). Появятся 6 файлов в `fonts/`; закоммитьте их.
+2. Vercel → Settings → Environment Variables: `GROQ_API_KEY` (обязательно), `GROQ_MODEL`, `GROQ_MAX_TOKENS` (по желанию). Затем Redeploy. Без ключа чат отвечает по FAQ.
+3. В `config.js` укажите `ENDPOINT` (URL веб-приложения Google Apps Script).
+4. Если сменится адрес Supabase, поправьте его в `config.js` и в CSP (`vercel.json`).
+
+## Безопасность
+
+- Репозиторий держите Private. Секреты только в переменных окружения Vercel.
+- В `config.js` лежит только публичный publishable-ключ Supabase; доступ защищён RLS (`supabase.sql`).
+- Supabase → Authentication: отключите публичные регистрации (Sign-ups), оставьте одного админа.
+- Сессия админки живёт до закрытия вкладки.
+- Ключ, который попадал в переписку или код, перевыпустите (Groq → API Keys).
+- На сайте для Германии нужны Impressum и политика конфиденциальности (`PRIVACY_URL` в `config.js`).

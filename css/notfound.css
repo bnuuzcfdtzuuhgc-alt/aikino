@@ -1,0 +1,7 @@
+:root{color-scheme:dark}
+body{margin:0;min-height:100dvh;display:grid;place-items:center;background:#0b0c0e;color:#eceee9;font-family:'Onest',system-ui,sans-serif;text-align:center}
+main{padding:24px}
+.code{margin:0;font-family:'Unbounded','Arial Black',system-ui,sans-serif;font-weight:800;font-size:clamp(5rem,26vw,14rem);line-height:1;color:#e3212d}
+h1{margin:12px 0 28px;font-size:clamp(1.1rem,3vw,1.6rem);font-weight:600}
+.back{display:inline-block;padding:14px 22px;background:#e3212d;color:#fff;text-decoration:none;font-weight:600}
+.back:hover,.back:focus-visible{background:#eceee9;color:#0b0c0e}
