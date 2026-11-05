@@ -63,7 +63,7 @@ html.pre-lock{overflow:hidden}
 .nav a:hover,.nav a[aria-current="true"]{color:#fff;border-bottom-color:#e3212d}
 .hdr .btn{background:transparent;color:#eceee9;border:1px solid #eceee9;font-family:var(--font-mono);font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;font-weight:500}
 .hdr .btn:hover{background:#e3212d;border-color:#e3212d;color:#fff}
-.menu-btn{margin-left:auto;min-width:48px;min-height:48px;background:none;border:1px solid #eceee9;color:#eceee9;padding:0 14px;font-family:var(--font-mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.menu-btn{margin-left:auto;display:grid;place-items:center;width:48px;height:48px;background:none;border:1px solid #eceee9;color:#eceee9;padding:0;font-family:var(--font-mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
 .menu{border-top:1px solid #25292d;background:#0b0c0e}
 .menu a{display:block;padding:18px 0;font-family:var(--font-display);font-weight:600;font-size:1.35rem;text-decoration:none;border-bottom:1px solid #25292d;color:#eceee9}
 @media (min-width:820px){.nav{display:flex}.menu-btn,.menu{display:none!important}}
@@ -425,3 +425,44 @@ html.lock{overflow:hidden}
   .stack .step .mono,.stack .step h3{grid-column:1}
   .stack .step p:last-child{grid-column:2;grid-row:1 / span 2;align-self:center}
 }
+
+/* burger menu */
+.burger{position:relative;display:block;width:22px;height:16px}
+.burger i{position:absolute;left:0;right:0;height:2px;background:currentColor;transition:transform .3s var(--ease),opacity .2s}
+.burger i:nth-child(1){top:0}.burger i:nth-child(2){top:7px}.burger i:nth-child(3){top:14px}
+.menu-btn[aria-expanded="true"] .burger i:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.menu-btn[aria-expanded="true"] .burger i:nth-child(2){opacity:0}
+.menu-btn[aria-expanded="true"] .burger i:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.menu-btn:focus-visible{outline:2px solid #e3212d;outline-offset:3px}
+.hdr .menu{position:absolute;top:100%;left:0;right:0;max-height:calc(100dvh - 76px);overflow-y:auto;overscroll-behavior:contain;box-shadow:0 24px 40px rgba(0,0,0,.45)}
+.hdr .menu:not([hidden]){animation:menuin .25s var(--ease)}
+@keyframes menuin{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.hdr .menu .wrap{display:grid;gap:0;min-height:0;padding-block:8px 20px}
+.menu a:not(.btn){display:flex;justify-content:space-between;align-items:center}
+.menu a:not(.btn)::after{content:"→";color:#e3212d;font-family:var(--font-mono);font-size:1rem}
+.menu-cta{margin-top:18px;justify-content:center;text-align:center;border:0;background:#e3212d!important;color:#fff!important;padding:0 20px;min-height:52px}
+html.menu-open{overflow:hidden}
+@media (min-width:820px){html.menu-open{overflow:auto}}
+@media (max-width:700px){
+  .tgbar{padding-bottom:max(8px,env(safe-area-inset-bottom,0px))}
+  .tgbar a{min-height:44px;width:min(100%,380px);padding:0 5px 0 14px;gap:10px;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+  .tgbar a::before,.tgbar a::after{display:none}
+  .tgbar .rec{font-size:.64rem;letter-spacing:.06em}
+  .tgbar .go{min-height:34px;padding:0 14px;font-size:.68rem}
+  html.tg-on .chat-fab{bottom:calc(max(8px,env(safe-area-inset-bottom,0px)) + 62px)}
+  html.tg-on .chat-cap{bottom:calc(max(8px,env(safe-area-inset-bottom,0px)) + 48px)}
+  html.tg-on .chat-tip{bottom:calc(max(8px,env(safe-area-inset-bottom,0px)) + 67px)}
+}
+.hdr .menu .menu-cta{display:flex;align-items:center}
+html.menu-open .chat-fab,html.menu-open .chat-cap,html.menu-open .chat-tip,html.menu-open .tgbar{display:none}
+
+/* viewer on phones: compact controls, more room for the media */
+@media (max-width:700px),(max-height:520px){
+  .lb-bar{min-height:52px;padding-block:4px}
+  .lb-bar .ib{width:44px;min-width:44px;height:44px;min-height:44px;padding:0;font-size:0}
+  .lb-bar .ib::before{content:"✕";font-size:1.1rem}
+  .lb-foot{padding-block:4px}
+  .lb-foot .ib{min-width:44px;min-height:44px}
+  .lbf{width:min(100%,calc((100dvh - 112px) * var(--rn)))}
+}
+@media (hover:none) and (pointer:coarse){.sl-btn{display:none}}

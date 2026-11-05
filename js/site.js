@@ -233,7 +233,7 @@
   $('#lb-close').onclick = () => lb.close();
   $('#lb-prev').onclick = () => step(-1); $('#lb-next').onclick = () => step(1);
   lb.addEventListener('click', e => { if (e.target === lb) lb.close(); });
-  lb.addEventListener('close', () => { stage.innerHTML = ''; root.classList.remove('lock'); if (opener) opener.focus(); });
+  lb.addEventListener('close', () => { if (lb.open) return; stage.innerHTML = ''; root.classList.remove('lock'); if (opener) opener.focus(); });
   lb.addEventListener('keydown', e => {
     if (e.target.closest('.track')) return;
     if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
@@ -242,8 +242,13 @@
 
   // menu + active section
   const mb = $('#menu-btn'), menu = $('#menu');
-  const setMenu = o => { menu.hidden = !o; mb.setAttribute('aria-expanded', String(o)); mb.textContent = t(o ? 'menu.close' : 'menu.open'); };
+  const setMenu = o => {
+    menu.hidden = !o; mb.setAttribute('aria-expanded', String(o));
+    mb.setAttribute('aria-label', t(o ? 'menu.close' : 'menu.open'));
+    html.classList.toggle('menu-open', o);
+  };
   mb.onclick = () => setMenu(menu.hidden);
+  matchMedia('(min-width:820px)').addEventListener('change', e => { if (e.matches) setMenu(false); });
   menu.addEventListener('click', e => { if (e.target.closest('a')) setMenu(false); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !menu.hidden) { setMenu(false); mb.focus(); } });
   if ('IntersectionObserver' in window) {
@@ -284,7 +289,8 @@
   const rlHits = () => { try { return JSON.parse(localStorage.getItem(RL_KEY) || '[]').filter(ts => Date.now() - ts < RL_WIN); } catch { return []; } };
   const rlMark = () => { try { localStorage.setItem(RL_KEY, JSON.stringify(rlHits().concat(Date.now()))); } catch { /* не критично */ } };
   const FAQ = [
-    [/цен|стоим|сколько|бюджет|прайс|руб|евро|€|\$|price|cost|how much|budget|rate/i, 'faq.price', true],
+    [/цен|стоим|сколько|бюджет|прайс|руб|евро|€|\$|price|cost|how much|budget|rate|pay/i, 'faq.price', true],
+    [/пример|покаж|портфолио|работы|кейс|example|portfolio|show|sample/i, 'faq.examples', false],
     [/срок|быстр|долго|когда|успе|how (fast|long|soon)|deadline|timeline|turnaround|when/i, 'faq.time', true],
     [/формат|видео|reels|рилс|фото|карусел|флаер|афиш|листов|услуг|делаете|умеете|what do you|services|video|photo|carousel|flyer|poster|format/i, 'faq.formats', false],
     [/заказ|связ|написать|заявк|хочу|нужен|нужна|проект|начать|order|contact|start|project|want|need|hire/i, 'faq.order', true],

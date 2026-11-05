@@ -91,23 +91,15 @@
   // смена языка в процессе игры: перерисовываем текущий экран
   I18N.onChange(() => { if (game.open) { qn >= t('game.questions').length ? renderEnd() : renderQuestion(); } });
 
-  // попап при уходе: ПК по выходу курсора вверх, телефон по резкой прокрутке вверх
+  // попап при уходе: только на компьютере, по выходу курсора за верхний край окна
   const SHOWN = 'aic-exit';
   const born = Date.now();
+  const mobile = matchMedia('(max-width: 819px), (pointer: coarse)');
   const busy = () => game.open || pop.open || $('#lb').open || $('#chat').classList.contains('open') ||
     /^(INPUT|TEXTAREA)$/.test((document.activeElement || {}).tagName || '');
-  const canShow = () => !read(SHOWN) && !read('aic-bonus') && Date.now() - born > 15000 && !busy();
+  const canShow = () => !mobile.matches && !read(SHOWN) && !read('aic-bonus') && Date.now() - born > 15000 && !busy();
   const showExit = () => { if (!canShow()) return; save(SHOWN, '1'); pop.showModal(); };
-
   document.addEventListener('mouseout', e => { if (!e.relatedTarget && e.clientY <= 0) showExit(); });
-  const samples = []; let maxY = scrollY;
-  addEventListener('scroll', () => {
-    const now = performance.now(), y = scrollY;
-    maxY = Math.max(maxY, y);
-    samples.push([y, now]);
-    while (samples.length && now - samples[0][1] > 350) samples.shift();
-    if (maxY > 1500 && samples.length && samples[0][0] - y > 500) showExit();
-  }, { passive: true });
 
   $('#exit-yes').onclick = () => { pop.close(); openGame(); };
   $('#exit-no').onclick = () => pop.close();
