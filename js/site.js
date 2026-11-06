@@ -131,14 +131,24 @@
         const a = document.createElement(href ? 'a' : 'div');
         a.className = 'site';
         if (href) { a.href = href; a.target = '_blank'; a.rel = 'noopener noreferrer'; }
-        const shot = document.createElement('div'); shot.className = 'site-shot';
-        if (x.shot_url) { const im = document.createElement('img'); im.src = x.shot_url; im.alt = x.title; im.loading = 'lazy'; shot.appendChild(im); }
+        let host = x.url || ''; try { host = new URL(x.url).host; } catch { /* не критично */ }
+        const lap = document.createElement('div'); lap.className = 'laptop';
+        const lid = document.createElement('div'); lid.className = 'lp-lid';
+        const scr = document.createElement('div'); scr.className = 'lp-screen';
+        const bar = document.createElement('div'); bar.className = 'lp-bar';
+        bar.innerHTML = '<i></i><i></i><i></i>'; const hs = document.createElement('span'); hs.textContent = host; bar.appendChild(hs);
+        scr.appendChild(bar);
+        if (x.shot_url) { const im = document.createElement('img'); im.src = x.shot_url; im.alt = x.title; im.loading = 'lazy'; scr.appendChild(im); }
+        else { const em = document.createElement('div'); em.className = 'lp-empty'; em.textContent = host; scr.appendChild(em); }
+        lid.appendChild(scr);
+        const base = document.createElement('div'); base.className = 'lp-base';
+        lap.append(lid, base);
         const body = document.createElement('div'); body.className = 'site-body';
         const ttl = document.createElement('span'); ttl.className = 'site-title'; ttl.textContent = x.title;
         body.appendChild(ttl);
         if (x.description) { const d = document.createElement('span'); d.className = 'site-desc'; d.textContent = x.description; body.appendChild(d); }
         if (href) { const g = document.createElement('span'); g.className = 'site-go'; g.dataset.i18n = 'sites.open'; g.textContent = t('sites.open'); body.appendChild(g); }
-        a.append(shot, body); li.appendChild(a); list.appendChild(li);
+        a.append(lap, body); li.appendChild(a); list.appendChild(li);
       });
       $('#sites').hidden = false;
       document.querySelectorAll('[data-sites]').forEach(e => { e.hidden = false; });
@@ -170,9 +180,24 @@
   const list = $('#works-list'), filtersEl = $('#filters');
   let filter = 'all';
   const renderWorks = () => {
-    list.innerHTML = WORKS.map((w, i) => `<li data-type="${w.type}"><button class="work" type="button" data-i="${i}" aria-label="${esc(t('works.open', wt(w), TYPES[w.type]))}"><span class="frame" style="--r:${w.ratio[0]}/${w.ratio[1]}">${thumb(w)}</span><span class="cap mono"><b>${esc(wt(w))}</b><span>${TYPES[w.type]}</span></span></button></li>`).join('');
+    list.innerHTML = WORKS.map((w, i) => `<li data-type="${w.type}"${w.type === 'video' ? ' data-wide' : ''}><button class="work" type="button" data-i="${i}" aria-label="${esc(t('works.open', wt(w), TYPES[w.type]))}"><span class="frame" style="--r:${w.ratio[0]}/${w.ratio[1]}">${thumb(w)}</span><span class="cap mono"><b>${esc(wt(w))}</b><span>${TYPES[w.type]}</span></span></button></li>`).join('');
   };
   renderWorks();
+  // 3D-наклон плиток за курсором (только мышь)
+  if (motion && matchMedia('(hover:hover) and (pointer:fine)').matches) {
+    list.addEventListener('pointermove', e => {
+      const b = e.target.closest('.work'); if (!b || e.pointerType !== 'mouse') return;
+      const r = b.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+      b.classList.add('tilt');
+      b.style.setProperty('--ry', ((x - .5) * 12).toFixed(2) + 'deg');
+      b.style.setProperty('--rx', ((.5 - y) * 12).toFixed(2) + 'deg');
+      b.style.setProperty('--gx', (x * 100).toFixed(0) + '%'); b.style.setProperty('--gy', (y * 100).toFixed(0) + '%');
+    });
+    list.addEventListener('pointerout', e => {
+      const b = e.target.closest('.work'); if (!b || b.contains(e.relatedTarget)) return;
+      b.classList.remove('tilt'); b.style.removeProperty('--rx'); b.style.removeProperty('--ry');
+    });
+  }
   if (motion && 'IntersectionObserver' in window) {
     html.classList.add('rv');
     const io = new IntersectionObserver(es => es.forEach(e => {
@@ -221,19 +246,39 @@
     const go = d => tr.scrollBy({ left: d * tr.clientWidth, behavior: reduce ? 'auto' : 'smooth' });
     $('.sl-prev', stage).onclick = () => go(-1); $('.sl-next', stage).onclick = () => go(1);
   }
-  function show(i) {
+  const strip = $('#lb-strip');
+  function renderStrip() {
+    strip.innerHTML = visible().map(i => { const w = WORKS[i]; return `<button type="button" data-i="${i}" aria-label="${esc(wt(w))}" aria-current="${i === cur}">${thumb(w)}</button>`; }).join('');
+  }
+  function show(i, dir) {
+    const first = !lb.open;
     cur = i; const w = WORKS[i], v = visible(), pos = v.indexOf(i) + 1;
+    stage.classList.toggle('back', dir < 0);
     stage.innerHTML = stageHTML(w); wireCarousel();
+    if (first || strip.children.length !== v.length) renderStrip();
+    strip.querySelectorAll('button').forEach(b => {
+      const on = +b.dataset.i === i; b.setAttribute('aria-current', String(on));
+      if (on) strip.scrollTo({ left: b.offsetLeft - (strip.clientWidth - b.offsetWidth) / 2, behavior: reduce ? 'auto' : 'smooth' });
+    });
     $('#lb-meta').textContent = `${w.id} · ${TYPES[w.type]} · ${pos}/${v.length}`;
     $('#lb-title').textContent = wt(w);
   }
   function open(i, btn) { opener = btn; show(i); if (!lb.open) { lb.showModal(); root.classList.add('lock'); } }
-  function step(d) { const v = visible(); if (!v.length) return; show(v[(v.indexOf(cur) + d + v.length) % v.length]); }
+  function step(d) { const v = visible(); if (!v.length) return; show(v[(v.indexOf(cur) + d + v.length) % v.length], d); }
+  strip.addEventListener('click', e => { const b = e.target.closest('button'); if (b) { const n = +b.dataset.i, v = visible(); show(n, v.indexOf(n) < v.indexOf(cur) ? -1 : 1); } });
+  // свайп по фото и флаерам (у видео и каруселей свои жесты)
+  let sx = null, sy0 = 0;
+  stage.addEventListener('pointerdown', e => { sx = e.target.closest('video,.track,.sl-btn') ? null : e.clientX; sy0 = e.clientY; });
+  stage.addEventListener('pointerup', e => {
+    if (sx == null) return; const dx = e.clientX - sx, dy = e.clientY - sy0; sx = null;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) step(dx < 0 ? 1 : -1);
+  });
+  stage.addEventListener('pointercancel', () => { sx = null; });
   list.addEventListener('click', e => { const b = e.target.closest('.work'); if (b) open(+b.dataset.i, b); });
   $('#lb-close').onclick = () => lb.close();
   $('#lb-prev').onclick = () => step(-1); $('#lb-next').onclick = () => step(1);
   lb.addEventListener('click', e => { if (e.target === lb) lb.close(); });
-  lb.addEventListener('close', () => { if (lb.open) return; stage.innerHTML = ''; root.classList.remove('lock'); if (opener) opener.focus(); });
+  lb.addEventListener('close', () => { if (lb.open) return; stage.innerHTML = ''; strip.innerHTML = ''; root.classList.remove('lock'); if (opener) opener.focus(); });
   lb.addEventListener('keydown', e => {
     if (e.target.closest('.track')) return;
     if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
