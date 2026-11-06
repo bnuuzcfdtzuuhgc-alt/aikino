@@ -180,7 +180,7 @@
   const list = $('#works-list'), filtersEl = $('#filters');
   let filter = 'all';
   const renderWorks = () => {
-    list.innerHTML = WORKS.map((w, i) => `<li data-type="${w.type}"${w.type === 'video' ? ' data-wide' : ''}><button class="work" type="button" data-i="${i}" aria-label="${esc(t('works.open', wt(w), TYPES[w.type]))}"><span class="frame" style="--r:${w.ratio[0]}/${w.ratio[1]}">${thumb(w)}</span><span class="cap mono"><b>${esc(wt(w))}</b><span>${TYPES[w.type]}</span></span></button></li>`).join('');
+    list.innerHTML = WORKS.map((w, i) => `<li data-type="${w.type}" style="--rn:${rn(w).toFixed(4)}"><button class="work" type="button" data-i="${i}" aria-label="${esc(t('works.open', wt(w), TYPES[w.type]))}"><span class="frame" style="--r:${w.ratio[0]}/${w.ratio[1]}">${thumb(w)}</span><span class="cap mono"><b>${esc(wt(w))}</b><span>${TYPES[w.type]}</span></span></button></li>`).join('');
   };
   renderWorks();
   // 3D-наклон плиток за курсором (только мышь)
@@ -216,10 +216,35 @@
     filter = f;
     filtersEl.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.f === f)));
     list.querySelectorAll('li').forEach(li => { li.hidden = !(f === 'all' || li.dataset.type === f); });
+    list.scrollLeft = 0; railSync();
     countEl.textContent = t('works.count', f === 'all' ? WORKS.length : counts[f], f === 'all');
   }
   filtersEl.addEventListener('click', e => { const b = e.target.closest('button'); if (b) setFilter(b.dataset.f); });
   $('#fmt-list').addEventListener('click', e => { const a = e.target.closest('a[data-filter]'); if (a) setFilter(a.dataset.filter); });
+
+  // лента: стрелки, полоса прокрутки, перетаскивание мышью
+  const prevB = $('#rail-prev'), nextB = $('#rail-next'), bar = $('#rail-i');
+  const railSync = () => {
+    const max = list.scrollWidth - list.clientWidth, x = list.scrollLeft;
+    prevB.disabled = x < 4; nextB.disabled = x > max - 4;
+    const w = max > 0 ? list.clientWidth / list.scrollWidth : 1, bw = bar.parentElement.clientWidth;
+    bar.style.setProperty('--w', (w * 100) + '%');
+    bar.style.setProperty('--x', (max > 0 ? (x / max) * (bw - bw * w) : 0) + 'px');
+  };
+  list.addEventListener('scroll', railSync, { passive: true });
+  addEventListener('resize', railSync);
+  const railGo = d => list.scrollBy({ left: d * Math.max(300, list.clientWidth * .7), behavior: reduce ? 'auto' : 'smooth' });
+  prevB.onclick = () => railGo(-1); nextB.onclick = () => railGo(1);
+  let dragX = null, dragL = 0, moved = false;
+  list.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse' || e.button) return; dragX = e.clientX; dragL = list.scrollLeft; moved = false; });
+  addEventListener('pointermove', e => {
+    if (dragX == null) return;
+    const dx = e.clientX - dragX;
+    if (!moved && Math.abs(dx) > 6) { moved = true; list.classList.add('drag'); }
+    if (moved) list.scrollLeft = dragL - dx;
+  });
+  addEventListener('pointerup', () => { if (dragX == null) return; dragX = null; list.classList.remove('drag'); setTimeout(() => { moved = false; }, 0); });
+  list.addEventListener('click', e => { if (moved) { e.stopPropagation(); e.preventDefault(); } }, true);
   setFilter('all');
 
   // lightbox
