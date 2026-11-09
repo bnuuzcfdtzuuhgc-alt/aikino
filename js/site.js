@@ -1,7 +1,6 @@
 (async () => {
   const C = window.SITE_CONFIG || {};
   const CONFIG = {
-    ENDPOINT: C.ENDPOINT || '',
     TELEGRAM: C.TELEGRAM || '',
     INSTAGRAM: C.INSTAGRAM || '',
     EMAIL: C.EMAIL || '',
@@ -90,6 +89,28 @@
       if (ticking) return; ticking = true;
       requestAnimationFrame(() => { html.style.setProperty('--sy', sy); ticking = false; });
     }, { passive: true });
+  }
+  // меняющееся слово и бегущая лента
+  const swapW = $('#swap-w'), tape = $('#tape');
+  let si = 0;
+  const swapSet = () => {
+    const a = t('hero.swapw'); swapW.textContent = a[si % a.length];
+    swapW.classList.remove('flip'); void swapW.offsetWidth; swapW.classList.add('flip');
+  };
+  const buildTape = () => {
+    const half = document.createDocumentFragment();
+    for (let k = 0; k < 3; k++) t('hero.tape').split('|').forEach(x => { const s = document.createElement('span'); s.textContent = x + ' ✦'; half.appendChild(s); });
+    tape.replaceChildren(half.cloneNode(true), ...half.cloneNode(true).childNodes);
+  };
+  swapSet(); buildTape();
+  if (motion) setInterval(() => { si++; swapSet(); }, 1800);
+  // свечение за курсором
+  if (motion && matchMedia('(hover:hover) and (pointer:fine)').matches) {
+    const hero = $('.hero');
+    hero.addEventListener('pointermove', e => {
+      const r = hero.getBoundingClientRect();
+      hero.style.setProperty('--mx', (e.clientX - r.left) + 'px'); hero.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    });
   }
   const fit = () => {
     const s = wm.firstElementChild; wm.style.fontSize = '100px';
@@ -320,6 +341,11 @@
   mb.onclick = () => setMenu(menu.hidden);
   matchMedia('(min-width:820px)').addEventListener('change', e => { if (e.matches) setMenu(false); });
   menu.addEventListener('click', e => { if (e.target.closest('a')) setMenu(false); });
+  // страницу под открытым меню не листаем (без overflow:hidden на html: он сбрасывал позицию и прятал липкую шапку)
+  const stopBg = e => { if (!menu.hidden && !menu.contains(e.target)) e.preventDefault(); };
+  document.addEventListener('touchmove', stopBg, { passive: false });
+  document.addEventListener('wheel', stopBg, { passive: false });
+  document.addEventListener('click', e => { if (!menu.hidden && !e.target.closest('.hdr')) setMenu(false); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !menu.hidden) { setMenu(false); mb.focus(); } });
   if ('IntersectionObserver' in window) {
     const links = [...document.querySelectorAll('.nav a')];
@@ -399,7 +425,11 @@
         clearTimeout(timer);
         if (r.ok) { const d = await r.json(); reply = String(d.reply || '').trim(); }
         else if (r.status === 429) { reply = I18N.tl(rl, 'chat.fast'); tg = true; }
-        else aiOff = true;
+        else {
+          let d = {}; try { d = await r.json(); } catch { /* не критично */ }
+          console.warn('AI chat unavailable:', r.status, d.error || '', d.detail || '');
+          if (r.status === 503 || r.status === 403) aiOff = true;
+        }
       } catch { /* сеть или таймаут: ответим из FAQ */ }
     }
     if (!reply) { const hit = FAQ.find(f => f[0].test(text)); reply = I18N.tl(rl, hit ? hit[1] : 'faq.fallback'); tg = hit ? hit[2] : true; }
@@ -442,46 +472,15 @@
   if (CONFIG.INSTAGRAM) fl.insertAdjacentHTML('beforeend', `<li><a href="${esc(CONFIG.INSTAGRAM)}" target="_blank" rel="noopener">Instagram ↗</a></li>`);
   if (CONFIG.EMAIL) fl.insertAdjacentHTML('beforeend', `<li>${esc(CONFIG.EMAIL)}</li>`);
   if (!links.children.length) links.remove();
-  const setConsent = () => {
-    const c = $('#consent-text');
-    if (CONFIG.PRIVACY_URL) c.innerHTML = `${esc(t('form.consent'))} <a href="${esc(CONFIG.PRIVACY_URL)}" target="_blank" rel="noopener">${esc(t('form.privacy'))}</a>`;
-    else c.textContent = t('form.consent');
-  };
-  setConsent();
-
-  // lead form
-  const form = $('#lead-form'), status = $('#lf-status'), btn = $('#lf-btn');
-  const fail = msg => { status.className = 'status err'; status.innerHTML = msg; };
-  const fallback = () => CONFIG.TELEGRAM ? ` ${t('form.viaTg')} <a href="${esc(CONFIG.TELEGRAM)}" target="_blank" rel="noopener">Telegram</a>.` : (CONFIG.EMAIL ? ' ' + esc(t('form.viaMail', CONFIG.EMAIL)) : ' ' + t('form.later'));
-  form.addEventListener('submit', async ev => {
-    ev.preventDefault(); status.className = 'status';
-    if (!CONFIG.ENDPOINT || CONFIG.ENDPOINT.startsWith('PASTE_')) { fail(t('form.noEndpoint')); return; }
-    if (!form.checkValidity()) { form.reportValidity(); return; }
-    btn.disabled = true; status.textContent = t('form.sending');
-    const fd = new FormData(form);
-    const topics = fd.getAll('topic'); fd.delete('topic');
-    fd.set('message', (topics.length ? 'Интересует: ' + topics.join(', ') + '\n\n' : '') + (fd.get('message') || ''));
-    fd.set('page', location.href);
-    try {
-      const res = await fetch(CONFIG.ENDPOINT, { method: 'POST', body: new URLSearchParams(fd) });
-      const data = await res.json();
-      if (data.ok) { form.reset(); status.className = 'status'; status.textContent = t('form.ok'); }
-      else if (data.error === 'too_many_requests') fail(t('form.dup'));
-      else throw new Error(data.error || 'failed');
-    } catch { fail(t('form.fail') + fallback()); }
-    finally { btn.disabled = false; }
-  });
-
   // смена языка: обновляем всё, что строится скриптом
   I18N.onChange(() => {
-    buildWordmark(); fit();
+    buildWordmark(); fit(); swapSet(); buildTape();
     renderWorks();
     list.querySelectorAll('li').forEach(li => li.classList.add('in'));
     renderFilters(); setFilter(filter);
     setMenu(!menu.hidden);
     document.querySelectorAll('[data-frame]').forEach(p => { p.textContent = t('proc.frame', p.dataset.frame); });
     if (greeted && !cchips.hidden) renderChips();
-    setConsent();
     if (tip.classList.contains('on')) tip.textContent = t('chat.tips')[tipIdx % 3];
   });
   document.querySelectorAll('[data-frame]').forEach(p => { p.textContent = t('proc.frame', p.dataset.frame); });

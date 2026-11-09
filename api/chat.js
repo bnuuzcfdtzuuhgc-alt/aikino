@@ -53,21 +53,28 @@ module.exports = async (req, res) => {
   const ctl = new AbortController();
   const timer = setTimeout(() => ctl.abort(), 25000);
   try {
+    const model = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
+    const payload = {
+      model,
+      messages: [{ role: 'system', content: system }, ...msgs],
+      temperature: 0.6,
+      max_completion_tokens: Number(process.env.GROQ_MAX_TOKENS) || 1024,
+      top_p: 0.95,
+      stream: false
+    };
+    // reasoning_effort понимают только модели с рассуждением
+    if (/^qwen\//.test(model)) payload.reasoning_effort = 'default';
+    else if (/gpt-oss/.test(model)) payload.reasoning_effort = 'low';
     const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: process.env.GROQ_MODEL || 'qwen/qwen3.8-27b',
-        messages: [{ role: 'system', content: system }, ...msgs],
-        temperature: 0.6,
-        max_completion_tokens: Number(process.env.GROQ_MAX_TOKENS) || 1024,
-        top_p: 0.95,
-        reasoning_effort: 'default',
-        stream: false
-      }),
+      body: JSON.stringify(payload),
       signal: ctl.signal
     });
-    if (!r.ok) return res.status(502).json({ error: 'upstream_' + r.status });
+    if (!r.ok) {
+      let detail = ''; try { detail = ((await r.json()).error || {}).message || ''; } catch { /* не критично */ }
+      return res.status(502).json({ error: 'upstream_' + r.status, detail: detail.slice(0, 200) });
+    }
     const data = await r.json();
     let reply = String((data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '');
     reply = reply.replace(/<think>[\s\S]*?<\/think>/gi, '').replace(/<think>[\s\S]*$/i, '').trim();

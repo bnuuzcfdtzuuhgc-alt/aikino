@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b0c0e">
-<meta name="build" content="2026-11-06-r9-rail">
+<meta name="build" content="2026-11-09-r13-chat-fix">
 <title>AI CRAFTS: ИИ-контент, который цепляет</title>
 <meta name="description" content="AI CRAFTS: ИИ-контент, который цепляет. Видео, фото, карусели для Instagram и флаеры за дни, а не недели. Обсудить проект.">
 <meta property="og:title" content="AI CRAFTS: ИИ-контент, который цепляет">
@@ -24,8 +24,9 @@
 </head>
 <body>
 <div id="pre" role="status" aria-live="polite" aria-label="Загрузка сайта" data-i18n-attr="aria-label:pre.aria">
-  <div class="pre-reel" aria-hidden="true"><span class="pre-sweep"></span><span class="pre-ring"></span><span class="pre-ring in"></span><span class="pre-num" id="pre-num">3</span></div>
-  <div class="pre-line mono"><div class="pre-bar"><i id="pre-fill"></i></div><span><span data-i18n="pre.load">Заряжаем плёнку</span> <span id="pre-pct">0%</span></span></div>
+  <div class="pre-top mono" aria-hidden="true"><span>AI CRAFTS</span><span id="pre-tc">00:00:00:00</span></div>
+  <div class="pre-word" id="pre-word" aria-hidden="true">AI</div>
+  <div class="pre-bot" aria-hidden="true"><span class="pre-n"><b id="pre-num">0</b><small>%</small></span><div class="pre-bar"><i id="pre-fill"></i></div></div>
 </div>
 <header class="hdr">
   <div class="wrap">
@@ -61,6 +62,7 @@
         <span>2.39 : 1</span>
       </div>
       <h1 class="wordmark" id="wm"><span data-i18n="hero.wm">ИИ КОНТЕНТ</span><span class="sr" data-i18n="hero.sr"> — AI CRAFTS, студия видео, фото, каруселей и флаеров</span></h1>
+      <p class="swap" aria-hidden="true"><span data-i18n="hero.swap">Делаем</span> <span class="swap-win"><b id="swap-w">Reels</b></span></p>
       <div class="hero-row">
         <div class="lead-box">
           <p class="lead" data-i18n-html="hero.lead"><b>Ленту листают за секунду.</b> Мы делаем контент, на котором палец замирает.</p>
@@ -71,6 +73,7 @@
           <a class="btn ghost" href="#works" data-i18n="hero.works">Смотреть работы</a>
         </div>
       </div>
+      <div class="tape" aria-hidden="true"><div class="tape-in" id="tape"></div></div>
       <figure class="reel" id="reel" aria-label="Шоурил студии" data-i18n-attr="aria-label:reel.aria">
         <i class="cm tl"></i><i class="cm tr"></i><i class="cm bl"></i><i class="cm br"></i>
       </figure>
@@ -159,32 +162,10 @@
         <p class="hint" data-i18n="contact.hint">Пара строк о вашей идее, и мы вернёмся с планом, сроками и первой задумкой. Без долгих брифов и скучных созвонов.</p>
         <ul class="links" id="links"></ul>
       </div>
-      <form class="form" id="lead-form" novalidate>
-        <fieldset class="chips">
-          <legend class="lbl" data-i18n="form.topic">Что интересует</legend>
-          <label class="chip"><input type="checkbox" name="topic" value="Видео"><span data-i18n="chip.video">Видео</span></label>
-          <label class="chip"><input type="checkbox" name="topic" value="Фото"><span data-i18n="chip.photo">Фото</span></label>
-          <label class="chip"><input type="checkbox" name="topic" value="Карусели для Instagram"><span data-i18n="chip.carousel">Карусели</span></label>
-          <label class="chip"><input type="checkbox" name="topic" value="Флаеры"><span data-i18n="chip.flyer">Флаеры</span></label>
-          <label class="chip"><input type="checkbox" name="topic" value="Другое"><span data-i18n="chip.other">Другое</span></label>
-        </fieldset>
-        <div class="field">
-          <label class="lbl" for="lf-name" data-i18n="form.name">Имя</label>
-          <input id="lf-name" name="name" type="text" autocomplete="name" required maxlength="100">
-        </div>
-        <div class="field">
-          <label class="lbl" for="lf-contact" data-i18n="form.contact">Телефон, email или Telegram</label>
-          <input id="lf-contact" name="contact" type="text" autocomplete="off" required maxlength="150">
-        </div>
-        <div class="field">
-          <label class="lbl" for="lf-message" data-i18n="form.message">Сообщение</label>
-          <textarea id="lf-message" name="message" rows="4" maxlength="2000"></textarea>
-        </div>
-        <div class="hp" aria-hidden="true"><label>Не заполняйте <input name="website" type="text" tabindex="-1" autocomplete="off"></label></div>
-        <label class="consent"><input type="checkbox" name="consent" value="yes" required><span id="consent-text" data-i18n="form.consent">Согласен(на) на обработку данных.</span></label>
-        <div><button class="btn" type="submit" id="lf-btn" data-i18n="form.send">Мотор! Отправить →</button></div>
-        <p class="status" id="lf-status" role="status" aria-live="polite"></p>
-      </form>
+      <div class="contact-cta">
+        <a class="btn big" href="#" data-tg><span data-i18n="cta.tg">Написать в ТГ</span> <span aria-hidden="true">→</span></a>
+        <p class="mono contact-note" data-i18n="contact.note">Отвечаем лично в Telegram</p>
+      </div>
     </div>
   </section>
 </main>

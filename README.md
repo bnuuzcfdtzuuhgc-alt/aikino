@@ -5,7 +5,7 @@
 ## Структура
 
     index.html, admin.html   страницы
-    config.js                публичные настройки (Supabase, Telegram, endpoint формы)
+    config.js                публичные настройки (Supabase, Telegram)
     css/                     fonts.css, site.css, admin.css
     js/                      preloader.js, i18n.js (переводы RU/EN), site.js, admin.js
     fonts/                   шрифты (скачиваются скриптом)
@@ -18,8 +18,7 @@
 
 1. Шрифты: `node scripts/get-fonts.mjs` (нужен Node 18+). Появятся 6 файлов в `fonts/`; закоммитьте их.
 2. Vercel → Settings → Environment Variables: `GROQ_API_KEY` (обязательно), `GROQ_MODEL`, `GROQ_MAX_TOKENS` (по желанию). Затем Redeploy. Без ключа чат отвечает по FAQ.
-3. В `config.js` укажите `ENDPOINT` (URL веб-приложения Google Apps Script).
-4. Если сменится адрес Supabase, поправьте его в `config.js` и в CSP (`vercel.json`).
+3. Если сменится адрес Supabase, поправьте его в `config.js` и в CSP (`vercel.json`).
 
 ## Безопасность
 
