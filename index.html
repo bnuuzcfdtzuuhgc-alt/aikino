@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="ru">
+<html lang="ru" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0b0c0e">
-<meta name="build" content="2026-11-09-r13-chat-fix">
+<meta name="theme-color" content="#e8eae7">
+<meta name="build" content="2026-11-09-r22-ro-fix">
 <title>AI CRAFTS: ИИ-контент, который цепляет</title>
 <meta name="description" content="AI CRAFTS: ИИ-контент, который цепляет. Видео, фото, карусели для Instagram и флаеры за дни, а не недели. Обсудить проект.">
 <meta property="og:title" content="AI CRAFTS: ИИ-контент, который цепляет">
@@ -16,6 +16,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preload" href="fonts/unbounded-cyrillic-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/bebas-neue-cyrillic-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/onest-cyrillic-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/fonts.css">
 <link rel="stylesheet" href="css/site.css">
@@ -56,13 +57,14 @@
   <section class="hero" aria-labelledby="wm">
     <div class="wrap">
       <div class="hero-meta mono" aria-hidden="true">
-        <span class="rec"><i></i>REC</span>
-        <span id="tc">00:00:00:00</span>
-        <span>25 fps</span>
+        <span class="rec"><i></i>REC <span id="tc">00:00:00:00</span></span>
+        <span>25 FPS</span>
         <span>2.39 : 1</span>
       </div>
-      <h1 class="wordmark" id="wm"><span data-i18n="hero.wm">ИИ КОНТЕНТ</span><span class="sr" data-i18n="hero.sr"> — AI CRAFTS, студия видео, фото, каруселей и флаеров</span></h1>
-      <p class="swap" aria-hidden="true"><span data-i18n="hero.swap">Делаем</span> <span class="swap-win"><b id="swap-w">Reels</b></span></p>
+      <div class="hx-title" id="hx-title">
+        <h1 class="wordmark" id="wm"><span data-i18n="hero.wm">ИИ КОНТЕНТ</span><span class="sr" data-i18n="hero.sr"> — AI CRAFTS, студия видео, фото, каруселей и флаеров</span></h1>
+        <p class="swap" aria-hidden="true"><span data-i18n="hero.swap">Делаем</span> <span class="swap-win"><b id="swap-w">Reels</b></span></p>
+      </div>
       <div class="hero-row">
         <div class="lead-box">
           <p class="lead" data-i18n-html="hero.lead"><b>Ленту листают за секунду.</b> Мы делаем контент, на котором палец замирает.</p>
@@ -90,12 +92,14 @@
         <p class="hint" data-i18n="works.hint">Выберите кадр и нырните в него: видео играет прямо внутри, карусели листаются пальцем. Всё, что вы видите, сделано под реальные задачи.</p>
       </div>
       <div class="filters" id="filters" role="group" aria-label="Фильтр по формату" data-i18n-attr="aria-label:filters.aria"></div>
-      <ul class="works" id="works-list"></ul>
-      <div class="rail-ctl" id="rail-ctl">
-        <button class="ib" id="rail-prev" type="button" aria-label="Назад" data-i18n-attr="aria-label:rail.prev">←</button>
-        <div class="rail-bar" aria-hidden="true"><i id="rail-i"></i></div>
-        <button class="ib" id="rail-next" type="button" aria-label="Вперёд" data-i18n-attr="aria-label:rail.next">→</button>
-      </div>
+      <div class="rail-pin" id="rail-pin"><div class="rail-stick">
+        <ul class="works" id="works-list"></ul>
+        <div class="rail-ctl" id="rail-ctl">
+          <button class="ib" id="rail-prev" type="button" aria-label="Назад" data-i18n-attr="aria-label:rail.prev">←</button>
+          <div class="rail-bar" aria-hidden="true"><i id="rail-i"></i></div>
+          <button class="ib" id="rail-next" type="button" aria-label="Вперёд" data-i18n-attr="aria-label:rail.next">→</button>
+        </div>
+      </div></div>
     </div>
   </section>
 
@@ -146,8 +150,8 @@
       <div class="gcta">
         <div>
           <p class="eyebrow mono" data-i18n="game.teaser.eyebrow">Мини-игра</p>
-          <h2 id="play-h" data-i18n="game.teaser.title">Угадай кино, получи бонус</h2>
-          <p class="hint" data-i18n="game.teaser.text">Пять вопросов, две минуты. Доиграйте до конца, и бонус ваш.</p>
+          <h2 id="play-h" data-i18n="game.teaser.title">Крестики-нолики с режиссёром</h2>
+          <p class="hint" data-i18n="game.teaser.text">Три партии, две минуты. Доиграйте до конца, и бонус ваш.</p>
         </div>
         <button class="btn" type="button" data-game data-i18n="game.start">Играть →</button>
       </div>
@@ -215,21 +219,27 @@
   <div class="lb-stage" id="lb-stage"></div>
   <div class="lb-strip" id="lb-strip" role="group" aria-label="Все работы" data-i18n-attr="aria-label:lb.strip"></div>
   <div class="lb-foot">
+    <button class="ib" id="lb-case" type="button" hidden data-i18n="case.open">Кейс →</button>
     <button class="ib" id="lb-prev" type="button" aria-label="Предыдущая работа" data-i18n-attr="aria-label:lb.prev">←</button>
     <span class="lb-title" id="lb-title"></span>
     <button class="ib" id="lb-next" type="button" aria-label="Следующая работа" data-i18n-attr="aria-label:lb.next">→</button>
   </div>
 </dialog>
 
-<dialog id="game" aria-label="Мини-игра «Угадай кино»" data-i18n-attr="aria-label:game.aria">
+<dialog id="game" aria-label="Мини-игра «Крестики-нолики»" data-i18n-attr="aria-label:game.aria">
   <div class="g-bar"><span class="mono" id="g-step"></span><button class="ib" id="g-close" type="button" aria-label="Закрыть" data-i18n-attr="aria-label:lb.closeAria" data-i18n="lb.close">Закрыть ✕</button></div>
   <div class="g-body" id="g-body"></div>
+</dialog>
+
+<dialog id="case" aria-labelledby="case-t">
+  <button class="ib" id="case-close" type="button" aria-label="Закрыть" data-i18n-attr="aria-label:lb.closeAria" data-i18n="lb.close">Закрыть ✕</button>
+  <article class="case" id="case-body"></article>
 </dialog>
 
 <dialog id="exit" class="pop" aria-labelledby="exit-t">
   <p class="mono pop-tag" data-i18n="exit.tag">СТОП-КАДР</p>
   <h3 id="exit-t" data-i18n="exit.title">Стоять. Куда?</h3>
-  <p class="pop-text" data-i18n="exit.text">Вы ещё не забрали бонус. Сыграйте в кино-игру на две минуты. Мы не кусаемся, мы дизайнеры.</p>
+  <p class="pop-text" data-i18n="exit.text">Вы ещё не забрали бонус. Сыграйте с режиссёром в крестики-нолики. Мы не кусаемся, мы дизайнеры.</p>
   <div class="pop-row">
     <button class="btn" type="button" id="exit-yes" data-i18n="exit.yes">Ладно, играю</button>
     <button class="btn ghost" type="button" id="exit-no" data-i18n="exit.no">Нет, я упрямый</button>

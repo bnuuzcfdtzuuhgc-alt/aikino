@@ -9,7 +9,9 @@
   };
   // демо-работы: показываются, пока в базе пусто
   let WORKS = [
-    { id:'A001_C001', type:'video',    title:'Рекламный ролик', en:'Promo video',        ratio:[16,9],     h:18,  src:'', poster:'' },
+    { id:'A001_C001', type:'video',    title:'Рекламный ролик', en:'Promo video',        ratio:[16,9],     h:18,  src:'', poster:'',
+      cs:{ task:'Короткий ролик для запуска нового продукта: 15 секунд, вертикальный и горизонтальный формат, без съёмочной группы.', solution:'Собрали раскадровку, сгенерировали ключевые сцены, довели до единого стиля и смонтировали под музыку.', result:'Готовый ролик за 3 дня вместо 3 недель — в двух форматах для рекламы и соцсетей.' },
+      csEn:{ task:'A short launch video for a new product: 15 seconds, vertical and horizontal, no film crew.', solution:'Built the storyboard, generated key scenes, unified the look and cut it to music.', result:'Finished in 3 days instead of 3 weeks — in two formats for ads and social.' } },
     { id:'A001_C002', type:'photo',    title:'Предметная съёмка', en:'Product shoot',      ratio:[4,5],      h:200, src:'' },
     { id:'A001_C003', type:'carousel', title:'Карусель для Instagram', en:'Instagram carousel', ratio:[4,5],      h:160, slides:5, slidesSrc:[] },
     { id:'A001_C004', type:'flyer',    title:'Флаер для события', en:'Event flyer',      ratio:[1000,1414],h:28,  src:'' },
@@ -38,6 +40,8 @@
   const rn = w => w.ratio[0] / w.ratio[1];
   const ph = (w, label) => `<span class="ph" style="--h:${w.h == null ? 200 : w.h}"><span class="ph-grain"></span><span class="ph-tag" data-i18n="ph.tag">${t('ph.tag')}</span><span class="ph-ico">${ICON[w.type]}</span><span class="ph-id">${esc(label || w.id)}</span></span>`;
   const thumbSrc = w => w.type === 'video' ? w.poster : w.type === 'carousel' ? (w.slidesSrc && w.slidesSrc[0]) : w.src;
+  const csOf = w => (I18N.lang === 'en' && w.csEn) || w.cs || null;
+  const hasCase = w => { const c = csOf(w); return !!(c && (c.task || c.solution || c.result)); };
   const thumb = w => { const s = thumbSrc(w); return s ? `<img src="${esc(s)}" alt="${esc(w.alt || wt(w))}" loading="lazy">` : ph(w); };
 
   // hero: reel + timecode + wordmark fit
@@ -67,15 +71,19 @@
   const motion = !matchMedia('(prefers-reduced-motion: reduce)').matches;
   const html = document.documentElement;
   const buildWordmark = () => {
-    const word = wm.firstElementChild, text = t('hero.wm');
-    if (!motion) { word.textContent = text; return; }
-    word.setAttribute('aria-hidden', 'true');
-    word.removeAttribute('data-i18n');
-    word.textContent = '';
-    [...text].forEach((ch, i) => {
-      const s = document.createElement('span');
-      s.className = 'wl'; s.style.setProperty('--i', i); s.textContent = ch === ' ' ? '\u00a0' : ch;
-      word.appendChild(s);
+    const box = wm.firstElementChild, text = t('hero.wm');
+    box.setAttribute('aria-hidden', 'true');
+    box.removeAttribute('data-i18n');
+    box.textContent = '';
+    text.split(' ').forEach((w, wi) => {
+      const ww = document.createElement('span'); ww.className = 'ww' + (motion ? ' mo' : '');
+      if (!motion) ww.textContent = w;
+      else [...w].forEach((ch, i) => {
+        const s = document.createElement('span');
+        s.className = 'wl'; s.style.setProperty('--i', wi * 4 + i); s.textContent = ch;
+        ww.appendChild(s);
+      });
+      box.appendChild(ww);
     });
   };
   if (motion) { html.classList.add('anim'); setTimeout(() => html.classList.add('go'), 7000); }
@@ -112,10 +120,14 @@
       hero.style.setProperty('--mx', (e.clientX - r.left) + 'px'); hero.style.setProperty('--my', (e.clientY - r.top) + 'px');
     });
   }
+  // подгоняем кегль так, чтобы строка занимала всю ширину
   const fit = () => {
-    const s = wm.firstElementChild; wm.style.fontSize = '100px';
-    const w = s.getBoundingClientRect().width, box = wm.clientWidth;
-    if (w > 0 && box > 0) wm.style.fontSize = Math.min(box / w * 100, 340) + 'px';
+    const line = wm.firstElementChild;
+    if (!line || !line.children.length) return;
+    wm.style.fontSize = '100px';
+    const w = line.getBoundingClientRect().width, box = wm.clientWidth;
+    if (!(w > 0 && box > 0)) return;
+    wm.style.fontSize = Math.min(box / w * 100 * .99, 320) + 'px';
   };
   let fitRaf; addEventListener('resize', () => { cancelAnimationFrame(fitRaf); fitRaf = requestAnimationFrame(fit); });
   fit(); if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
@@ -131,7 +143,8 @@
           id: 'A001_C' + String(i + 1).padStart(3, '0'), type: x.type, title: x.title, alt: x.description || '',
           ratio: [x.ratio_w || 4, x.ratio_h || 5], h: 200,
           src: x.file_url || '', poster: x.poster_url || '',
-          slidesSrc: Array.isArray(x.slides) ? x.slides : [], slides: (x.slides || []).length
+          slidesSrc: Array.isArray(x.slides) ? x.slides : [], slides: (x.slides || []).length,
+          cs: { task: x.task || '', solution: x.solution || '', result: x.result || '' }
         }));
       }
     } catch { /* остаются заглушки */ }
@@ -201,7 +214,7 @@
   const list = $('#works-list'), filtersEl = $('#filters');
   let filter = 'all';
   const renderWorks = () => {
-    list.innerHTML = WORKS.map((w, i) => `<li data-type="${w.type}" style="--rn:${rn(w).toFixed(4)}"><button class="work" type="button" data-i="${i}" aria-label="${esc(t('works.open', wt(w), TYPES[w.type]))}"><span class="frame" style="--r:${w.ratio[0]}/${w.ratio[1]}">${thumb(w)}</span><span class="cap mono"><b>${esc(wt(w))}</b><span>${TYPES[w.type]}</span></span></button></li>`).join('');
+    list.innerHTML = WORKS.map((w, i) => `<li data-type="${w.type}" style="--rn:${rn(w).toFixed(4)}"><button class="work" type="button" data-i="${i}" aria-label="${esc(t('works.open', wt(w), TYPES[w.type]))}"><span class="frame" style="--r:${w.ratio[0]}/${w.ratio[1]}">${thumb(w)}</span><span class="cap mono"><b>${esc(wt(w))}</b><span>${TYPES[w.type]}${hasCase(w) ? ` · ${t('case.badge')}` : ''}</span></span></button></li>`).join('');
   };
   renderWorks();
   // 3D-наклон плиток за курсором (только мышь)
@@ -237,7 +250,7 @@
     filter = f;
     filtersEl.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.f === f)));
     list.querySelectorAll('li').forEach(li => { li.hidden = !(f === 'all' || li.dataset.type === f); });
-    list.scrollLeft = 0; railSync();
+    list.scrollLeft = 0; railSync(); pinLayout();
     countEl.textContent = t('works.count', f === 'all' ? WORKS.length : counts[f], f === 'all');
   }
   filtersEl.addEventListener('click', e => { const b = e.target.closest('button'); if (b) setFilter(b.dataset.f); });
@@ -254,10 +267,13 @@
   };
   list.addEventListener('scroll', railSync, { passive: true });
   addEventListener('resize', railSync);
-  const railGo = d => list.scrollBy({ left: d * Math.max(300, list.clientWidth * .7), behavior: reduce ? 'auto' : 'smooth' });
+  const railGo = d => {
+    const dist = d * Math.max(300, list.clientWidth * .7), beh = reduce ? 'auto' : 'smooth';
+    if (pinOn) window.scrollBy({ top: dist / PIN_K, behavior: beh }); else list.scrollBy({ left: dist, behavior: beh });
+  };
   prevB.onclick = () => railGo(-1); nextB.onclick = () => railGo(1);
   let dragX = null, dragL = 0, moved = false;
-  list.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse' || e.button) return; dragX = e.clientX; dragL = list.scrollLeft; moved = false; });
+  list.addEventListener('pointerdown', e => { if (pinOn || e.pointerType !== 'mouse' || e.button) return; dragX = e.clientX; dragL = list.scrollLeft; moved = false; });
   addEventListener('pointermove', e => {
     if (dragX == null) return;
     const dx = e.clientX - dragX;
@@ -266,6 +282,28 @@
   });
   addEventListener('pointerup', () => { if (dragX == null) return; dragX = null; list.classList.remove('drag'); setTimeout(() => { moved = false; }, 0); });
   list.addEventListener('click', e => { if (moved) { e.stopPropagation(); e.preventDefault(); } }, true);
+  // режим «выставка» (ПК): вертикальная прокрутка двигает ленту вбок
+  const pinEl = $('#rail-pin'), stick = $('.rail-stick');
+  const pinMQ = matchMedia('(min-width:900px) and (hover:hover) and (pointer:fine)');
+  const PIN_K = 2; // сколько px ленты на 1 px прокрутки
+  let pinOn = false, pinMax = 0;
+  function pinSync() {
+    if (!pinOn) return;
+    const top = pinEl.getBoundingClientRect().top - (parseFloat(window.getComputedStyle(stick).top) || 0);
+    list.scrollLeft = Math.min(Math.max(-top * PIN_K, 0), pinMax);
+  }
+  function pinLayout() {
+    pinOn = motion && pinMQ.matches;
+    pinEl.classList.toggle('on', pinOn);
+    if (!pinOn) { pinEl.style.removeProperty('--pin-h'); return; }
+    pinMax = Math.max(0, list.scrollWidth - list.clientWidth);
+    pinEl.style.setProperty('--pin-h', (stick.offsetHeight + pinMax / PIN_K) + 'px');
+    pinSync();
+  }
+  addEventListener('scroll', pinSync, { passive: true });
+  addEventListener('resize', pinLayout);
+  addEventListener('load', pinLayout);
+  pinMQ.addEventListener('change', pinLayout);
   setFilter('all');
 
   // lightbox
@@ -277,20 +315,51 @@
     if (w.type === 'carousel') {
       const n = (w.slidesSrc && w.slidesSrc.length) || w.slides || 5;
       let s = '';
-      for (let k = 0; k < n; k++) s += `<div class="slide" role="group" aria-roledescription="${t('slide.role')}" aria-label="${t('slide.label', k + 1, n)}">${(w.slidesSrc && w.slidesSrc[k]) ? `<img src="${esc(w.slidesSrc[k])}" alt="${esc(t('slide.alt', wt(w), k + 1))}">` : ph(w, `SLIDE ${k + 1}/${n}`)}</div>`;
-      return `<div class="lbf" ${r}><div class="track" tabindex="0" aria-label="${t('slides.aria')}">${s}</div><button class="ib sl-btn sl-prev" type="button" aria-label="${t('sl.prev')}">‹</button><button class="ib sl-btn sl-next" type="button" aria-label="${t('sl.next')}">›</button><div class="dots" aria-hidden="true">${'<i></i>'.repeat(n)}</div></div>`;
+      for (let k = 0; k < n; k++) s += `<div class="slide" style="--k:${k}" role="group" aria-roledescription="${t('slide.role')}" aria-label="${t('slide.label', k + 1, n)}"><div class="sl-in">${(w.slidesSrc && w.slidesSrc[k]) ? `<img src="${esc(w.slidesSrc[k])}" alt="${esc(t('slide.alt', wt(w), k + 1))}">` : ph(w, `SLIDE ${k + 1}/${n}`)}</div></div>`;
+      return `<div class="lbf cf" ${r}><div class="track" tabindex="0" aria-label="${t('slides.aria')}">${s}</div><button class="ib sl-btn sl-prev" type="button" aria-label="${t('sl.prev')}">‹</button><button class="ib sl-btn sl-next" type="button" aria-label="${t('sl.next')}">›</button><div class="dots" aria-hidden="true">${'<i></i>'.repeat(n)}</div></div>`;
     }
     if (w.type === 'video' && w.src) return `<div class="lbf" ${r}><video controls playsinline autoplay ${w.poster ? `poster="${esc(w.poster)}"` : ''} src="${esc(w.src)}"></video></div>`;
     if (w.type !== 'video' && w.src) return `<div class="lbf" ${r}><img src="${esc(w.src)}" alt="${esc(w.alt || wt(w))}"></div>`;
     return `<div class="lbf" ${r}>${ph(w)}</div>`;
   }
+  // карусель-«коверфлоу»: слайды веером раскладываются из стопки, центральный крупно, соседи под углом
   function wireCarousel() {
     const tr = $('.track', stage); if (!tr) return;
-    const dots = [...stage.querySelectorAll('.dots i')];
-    const upd = () => { const k = Math.round(tr.scrollLeft / tr.clientWidth); dots.forEach((d, j) => d.setAttribute('aria-current', String(j === k))); };
-    tr.addEventListener('scroll', upd, { passive: true }); upd();
-    const go = d => tr.scrollBy({ left: d * tr.clientWidth, behavior: reduce ? 'auto' : 'smooth' });
-    $('.sl-prev', stage).onclick = () => go(-1); $('.sl-next', stage).onclick = () => go(1);
+    const cf = tr.parentElement, slides = [...tr.children], dots = [...stage.querySelectorAll('.dots i')], GAP = 22;
+    let sw = 0, cur0 = -1;
+    const layout = () => {
+      sw = slides[0].getBoundingClientRect().width / (parseFloat(slides[0].style.getPropertyValue('--z')) || 1);
+      sw = slides[0].offsetWidth;
+      tr.style.paddingInline = Math.max(0, (tr.clientWidth - sw) / 2) + 'px';
+      cf.style.setProperty('--sw', sw + 'px');
+    };
+    const upd = () => {
+      const c = tr.scrollLeft + tr.clientWidth / 2;
+      slides.forEach(sl => {
+        const d = (sl.offsetLeft + sl.offsetWidth / 2 - c) / (sw + GAP), a = Math.min(Math.abs(d), 3);
+        sl.style.setProperty('--d', Math.max(-3, Math.min(3, d)).toFixed(3)); sl.style.setProperty('--a', a.toFixed(3));
+        sl.style.zIndex = String(10 - Math.round(a));
+      });
+      const k = Math.max(0, Math.min(slides.length - 1, Math.round(tr.scrollLeft / (sw + GAP))));
+      if (k !== cur0) { cur0 = k; dots.forEach((dd, j) => dd.setAttribute('aria-current', String(j === k))); }
+    };
+    const goTo = k => tr.scrollTo({ left: Math.max(0, Math.min(slides.length - 1, k)) * (sw + GAP), behavior: reduce ? 'auto' : 'smooth' });
+    // раскладка зависит от размеров, которых нет, пока диалог ещё закрыт, поэтому следим за размером ленты
+    let started = false;
+    let raf = 0;
+    const relayout = () => {
+      raf = 0;
+      if (!tr.isConnected) { ro.disconnect(); return; }
+      if (!tr.clientWidth) return;
+      const k0 = cur0 < 0 ? 0 : cur0; layout(); tr.scrollLeft = k0 * (sw + GAP); upd();
+      if (!started) { started = true; if (motion) cf.classList.add('fan'); }
+    };
+    // кадр откладываем, а следим за внешним размером: иначе смена отступов вызывает «ResizeObserver loop»
+    const ro = new window.ResizeObserver(() => { if (!raf) raf = requestAnimationFrame(relayout); });
+    ro.observe(tr, { box: 'border-box' });
+    tr.addEventListener('scroll', upd, { passive: true });
+    slides.forEach((sl, k) => sl.addEventListener('click', () => { if (k !== cur0) goTo(k); }));
+    $('.sl-prev', stage).onclick = () => goTo(cur0 - 1); $('.sl-next', stage).onclick = () => goTo(cur0 + 1);
   }
   const strip = $('#lb-strip');
   function renderStrip() {
@@ -308,6 +377,7 @@
     });
     $('#lb-meta').textContent = `${w.id} · ${TYPES[w.type]} · ${pos}/${v.length}`;
     $('#lb-title').textContent = wt(w);
+    $('#lb-case').hidden = !hasCase(w);
   }
   function open(i, btn) { opener = btn; show(i); if (!lb.open) { lb.showModal(); root.classList.add('lock'); } }
   function step(d) { const v = visible(); if (!v.length) return; show(v[(v.indexOf(cur) + d + v.length) % v.length], d); }
@@ -325,6 +395,30 @@
   $('#lb-prev').onclick = () => step(-1); $('#lb-next').onclick = () => step(1);
   lb.addEventListener('click', e => { if (e.target === lb) lb.close(); });
   lb.addEventListener('close', () => { if (lb.open) return; stage.innerHTML = ''; strip.innerHTML = ''; root.classList.remove('lock'); if (opener) opener.focus(); });
+  // страница кейса: задача → решение → результат
+  const cdlg = $('#case');
+  function openCase(i) {
+    const w = WORKS[i]; if (!w || !hasCase(w)) return;
+    const c = csOf(w), main = w.type === 'video' && w.src
+      ? `<video controls playsinline ${w.poster ? `poster="${esc(w.poster)}"` : ''} src="${esc(w.src)}"></video>`
+      : thumb(w);
+    const blk = (k, txt, n) => txt ? `<section class="cs-b"><span class="cs-n mono">0${n}</span><h3>${t('case.' + k)}</h3><p>${esc(txt).replace(/\n/g, '<br>')}</p></section>` : '';
+    $('#case-body').innerHTML = `<p class="mono cs-kind">${w.id} · ${TYPES[w.type]}</p><h2 id="case-t">${esc(wt(w))}</h2><div class="cs-media" style="--r:${w.ratio[0]}/${w.ratio[1]}">${main}</div><div class="cs-grid">${blk('task', c.task, 1)}${blk('solution', c.solution, 2)}${blk('result', c.result, 3)}</div><div class="cs-cta"><a class="btn big" data-tg href="${esc(CONFIG.TELEGRAM || '#')}" target="_blank" rel="noopener">${t('case.cta')}</a></div>`;
+    cdlg.dataset.i = i;
+    if (!cdlg.open) cdlg.showModal();
+    cdlg.scrollTop = 0;
+    try { window.history.replaceState(null, '', '#case-' + (i + 1)); } catch { /* не критично */ }
+  }
+  $('#lb-case').onclick = () => openCase(cur);
+  $('#case-close').onclick = () => cdlg.close();
+  cdlg.addEventListener('click', e => { if (e.target === cdlg) cdlg.close(); });
+  cdlg.addEventListener('close', () => {
+    $('#case-body').innerHTML = '';
+    try { window.history.replaceState(null, '', location.pathname + location.search); } catch { /* не критично */ }
+    if (lb.open) $('#lb-case').focus();
+  });
+  I18N.onChange(() => { if (cdlg.open) openCase(+cdlg.dataset.i); });
+  { const m = /^#case-(\d+)$/.exec(location.hash); if (m && WORKS[+m[1] - 1] && hasCase(WORKS[+m[1] - 1])) { open(+m[1] - 1, null); openCase(+m[1] - 1); } }
   lb.addEventListener('keydown', e => {
     if (e.target.closest('.track')) return;
     if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }

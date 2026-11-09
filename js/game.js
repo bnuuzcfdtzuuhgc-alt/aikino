@@ -1,4 +1,4 @@
-// Мини-игра «Угадай кино» и попап при попытке уйти с сайта.
+// Мини-игра «Крестики-нолики» и попап при попытке уйти с сайта.
 (() => {
   const C = window.SITE_CONFIG || {};
   const t = (...a) => I18N.t(...a);
@@ -15,45 +15,87 @@
   const read = k => { try { return sessionStorage.getItem(k); } catch { return null; } };
   const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
 
-  let qn = 0, score = 0;
+  // крестики-нолики против «режиссёра»: серия из трёх партий
+  const ROUNDS = 3;
+  const LINES = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
+  let round = 0, wins = 0, draws = 0, losses = 0, board = [], over = false, thinking = false, msg = '', line = null, timer = 0, ended = false;
 
-  function progress(total) {
-    const p = el('div', 'g-prog');
-    for (let i = 0; i < total; i++) p.appendChild(el('i', i < qn ? 'done' : i === qn ? 'now' : ''));
-    return p;
+  const verdict = b => {
+    for (const l of LINES) if (b[l[0]] && b[l[0]] === b[l[1]] && b[l[0]] === b[l[2]]) return { w: b[l[0]], line: l };
+    return b.every(Boolean) ? { w: 'D', line: null } : null;
+  };
+  const free = b => b.map((v, i) => v ? -1 : i).filter(i => i >= 0);
+  function cpuPick(b) {
+    const f = free(b);
+    if (Math.random() < .22) return pick(f);                    // иногда «режиссёр» ошибается
+    const tryWin = who => f.find(i => { const c = b.slice(); c[i] = who; const v = verdict(c); return v && v.w === who; });
+    const m = tryWin('O'); if (m != null) return m;
+    const bl = tryWin('X'); if (bl != null) return bl;
+    if (!b[4]) return 4;
+    const corners = [0, 2, 6, 8].filter(i => !b[i]); if (corners.length) return pick(corners);
+    return pick(f);
   }
 
-  function renderQuestion() {
-    const qs = t('game.questions'), q = qs[qn];
-    step.textContent = t('game.q', qn + 1, qs.length);
-    body.replaceChildren(progress(qs.length), el('h3', 'g-q', q.q));
-    const list = el('div', 'g-opts');
-    const note = el('p', 'g-note');
-    note.setAttribute('role', 'status');
-    const next = el('button', 'btn g-next', t(qn + 1 === qs.length ? 'game.finish' : 'game.next'));
-    next.type = 'button'; next.hidden = true;
-    q.a.forEach((text, i) => {
-      const b = el('button', 'g-opt', text); b.type = 'button';
-      b.addEventListener('click', () => {
-        const ok = i === q.c;
-        if (ok) score++;
-        list.querySelectorAll('button').forEach((x, j) => { x.disabled = true; if (j === q.c) x.classList.add('right'); });
-        if (!ok) b.classList.add('wrong');
-        note.textContent = pick(t(ok ? 'game.ok' : 'game.bad'));
-        note.className = 'g-note ' + (ok ? 'ok' : 'bad');
-        next.hidden = false; next.focus();
-      });
-      list.appendChild(b);
+  function startRound() {
+    board = Array(9).fill(''); over = false; thinking = false; msg = ''; line = null;
+    round++; render();
+  }
+
+  function finishRound(v) {
+    over = true; thinking = false; line = v.line;
+    if (v.w === 'X') { wins++; msg = pick(t('game.winMsg')); }
+    else if (v.w === 'O') { losses++; msg = pick(t('game.loseMsg')); }
+    else { draws++; msg = pick(t('game.drawMsg')); }
+    result = v.w;
+    render();
+  }
+  let result = '';
+
+  function place(i) {
+    if (over || thinking || board[i]) return;
+    board[i] = 'X';
+    const v = verdict(board);
+    if (v) return finishRound(v);
+    thinking = true; render();
+    timer = setTimeout(() => {
+      board[cpuPick(board)] = 'O';
+      const w = verdict(board);
+      thinking = false;
+      if (w) finishRound(w); else render();
+    }, 480);
+  }
+
+  function render() {
+    if (ended) return renderEnd();
+    step.textContent = t('game.round', round, ROUNDS);
+    const prog = el('div', 'g-prog');
+    for (let i = 0; i < ROUNDS; i++) prog.appendChild(el('i', i < round - 1 || (i === round - 1 && over) ? 'done' : i === round - 1 ? 'now' : ''));
+    const sc = el('p', 'g-sc mono', `${t('game.you')} ${wins}  :  ${losses} ${t('game.cpu')}`);
+    const status = el('h3', 'g-q', over ? msg : t(thinking ? 'game.cpuTurn' : 'game.yourTurn'));
+    status.setAttribute('role', 'status');
+    const grid = el('div', 'g-board');
+    board.forEach((v, i) => {
+      const c = el('button', 'g-cell', v === 'X' ? '✕' : v === 'O' ? '○' : '');
+      c.type = 'button'; c.dataset.v = v;
+      c.setAttribute('aria-label', t('game.cell', i + 1, v === 'X' ? t('game.you') : v === 'O' ? t('game.cpu') : ''));
+      c.disabled = over || thinking || !!v;
+      if (line && line.includes(i)) c.classList.add(result === 'X' ? 'win' : 'lose');
+      c.addEventListener('click', () => place(i));
+      grid.appendChild(c);
     });
-    next.addEventListener('click', () => { qn++; qn < qs.length ? renderQuestion() : renderEnd(); });
-    body.append(list, note, next);
+    const next = el('button', 'btn g-next', t(round === ROUNDS ? 'game.finish' : 'game.next'));
+    next.type = 'button'; next.hidden = !over;
+    next.addEventListener('click', () => { if (round === ROUNDS) { ended = true; renderEnd(); } else startRound(); });
+    body.replaceChildren(prog, sc, status, grid, next);
+    if (over) next.focus();
   }
 
   function renderEnd() {
-    const total = t('game.questions').length;
+    clearTimeout(timer);
     save('aic-bonus', '1');
     step.textContent = t('game.endTitle');
-    const rank = score >= 5 ? 'game.rank5' : score >= 3 ? 'game.rank3' : 'game.rank0';
+    const rank = wins >= 2 ? 'game.rank5' : wins === 1 ? 'game.rank3' : 'game.rank0';
+    const prog = el('div', 'g-prog'); for (let i = 0; i < ROUNDS; i++) prog.appendChild(el('i', 'done'));
     const code = el('p', 'g-code'); code.append(el('span', 'mono', t('game.codeLabel')), el('b', null, CODE));
     const claim = el('a', 'btn', t('game.claim'));
     claim.href = C.TELEGRAM || '#contact'; claim.target = '_blank'; claim.rel = 'noopener';
@@ -62,11 +104,11 @@
       try { navigator.clipboard.writeText(CODE); hint.textContent = t('game.copied'); } catch { /* не критично */ }
     });
     const again = el('button', 'btn ghost', t('game.again')); again.type = 'button';
-    again.addEventListener('click', () => { qn = 0; score = 0; renderQuestion(); });
+    again.addEventListener('click', () => { resetSeries(); startRound(); });
     body.replaceChildren(
-      progress(total),
+      prog,
       el('h3', 'g-q', t(rank)),
-      el('p', 'g-score mono', t('game.score', score, total)),
+      el('p', 'g-score mono', t('game.score', wins, draws, losses)),
       el('p', 'g-bonus-l mono', t('game.bonusLabel')),
       el('p', 'g-bonus', bonusText()),
       code,
@@ -76,20 +118,21 @@
     $('.g-row', body).append(claim, again);
   }
 
+  function resetSeries() { clearTimeout(timer); round = 0; wins = draws = losses = 0; ended = false; }
+
   function openGame() {
     if (pop.open) pop.close();
-    qn = 0; score = 0;
-    renderQuestion();
+    resetSeries(); startRound();
     if (!game.open) { game.showModal(); document.documentElement.classList.add('lock'); }
   }
   const closeGame = () => game.close();
-  game.addEventListener('close', () => { document.documentElement.classList.remove('lock') });
+  game.addEventListener('close', () => { clearTimeout(timer); document.documentElement.classList.remove('lock'); });
   $('#g-close').onclick = closeGame;
   game.addEventListener('click', e => { if (e.target === game) closeGame(); });
   document.addEventListener('click', e => { if (e.target.closest('[data-game]')) openGame(); });
 
   // смена языка в процессе игры: перерисовываем текущий экран
-  I18N.onChange(() => { if (game.open) { qn >= t('game.questions').length ? renderEnd() : renderQuestion(); } });
+  I18N.onChange(() => { if (game.open) render(); });
 
   // попап при уходе: только на компьютере, по выходу курсора за верхний край окна
   const SHOWN = 'aic-exit';

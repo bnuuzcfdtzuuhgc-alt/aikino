@@ -105,6 +105,7 @@
       <div class="acts">
         <button class="btn ghost sm" type="button" data-a="up" aria-label="Поднять выше" ${i === 0 ? 'disabled' : ''}>↑</button>
         <button class="btn ghost sm" type="button" data-a="down" aria-label="Опустить ниже" ${i === rows.length - 1 ? 'disabled' : ''}>↓</button>
+        ${table === 'works' ? `<button class="btn ghost sm" type="button" data-a="case">Кейс${r.task || r.solution || r.result ? ' ✓' : ''}</button>` : ''}
         <button class="btn ghost sm" type="button" data-a="toggle">${r.published ? 'Скрыть' : 'Показать'}</button>
         <button class="btn danger sm" type="button" data-a="del">Удалить</button>
       </div></li>`).join('');
@@ -125,6 +126,23 @@
       const li = btn.closest('.item'), id = li.dataset.id, row = state[table].find(r => r.id === id), act = btn.dataset.a;
       statusEl.className = 'status';
       try {
+        if (act === 'case') {
+          const ex = li.querySelector('.case-form');
+          if (ex) { ex.remove(); return; }
+          li.insertAdjacentHTML('beforeend', `<form class="case-form" style="flex-basis:100%;display:grid;gap:8px;margin-top:10px">
+            <label>Задача<textarea name="task" rows="2" maxlength="600">${esc(row.task)}</textarea></label>
+            <label>Что сделали<textarea name="solution" rows="3" maxlength="900">${esc(row.solution)}</textarea></label>
+            <label>Результат<textarea name="result" rows="2" maxlength="600">${esc(row.result)}</textarea></label>
+            <button class="btn sm" type="submit">Сохранить кейс</button></form>`);
+          li.querySelector('.case-form').addEventListener('submit', async e => {
+            e.preventDefault(); const f = e.target;
+            try {
+              await api(`/rest/v1/${table}?id=eq.${id}`, { method: 'PATCH', headers: J, body: JSON.stringify({ task: f.task.value.trim(), solution: f.solution.value.trim(), result: f.result.value.trim() }) });
+              await loadList(table); statusEl.className = 'status ok'; statusEl.textContent = 'Кейс сохранён.';
+            } catch (er) { statusEl.className = 'status err'; statusEl.textContent = /column|task/i.test(er.message) ? 'Сначала выполните cases.sql в Supabase (SQL Editor).' : er.message; }
+          });
+          return;
+        }
         if (act === 'up' || act === 'down') await move(table, id, act === 'up' ? -1 : 1);
         else if (act === 'toggle') { await api(`/rest/v1/${table}?id=eq.${id}`, { method: 'PATCH', headers: J, body: JSON.stringify({ published: !row.published }) }); await loadList(table); }
         else if (act === 'del') {
