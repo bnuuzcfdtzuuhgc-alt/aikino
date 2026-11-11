@@ -18,7 +18,7 @@
   // крестики-нолики против «режиссёра»: серия из трёх партий
   const ROUNDS = 3;
   const LINES = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
-  let round = 0, wins = 0, draws = 0, losses = 0, board = [], over = false, thinking = false, msg = '', line = null, timer = 0, ended = false;
+  let round = 0, wins = 0, draws = 0, losses = 0, board = [], over = false, thinking = false, msg = '', line = null, timer = 0, ended = false, fresh = -1, introT = 0;
 
   const verdict = b => {
     for (const l of LINES) if (b[l[0]] && b[l[0]] === b[l[1]] && b[l[0]] === b[l[2]]) return { w: b[l[0]], line: l };
@@ -37,7 +37,7 @@
   }
 
   function startRound() {
-    board = Array(9).fill(''); over = false; thinking = false; msg = ''; line = null;
+    board = Array(9).fill(''); over = false; thinking = false; msg = ''; line = null; fresh = -1;
     round++; render();
   }
 
@@ -53,12 +53,12 @@
 
   function place(i) {
     if (over || thinking || board[i]) return;
-    board[i] = 'X';
+    board[i] = 'X'; fresh = i;
     const v = verdict(board);
     if (v) return finishRound(v);
     thinking = true; render();
     timer = setTimeout(() => {
-      board[cpuPick(board)] = 'O';
+      fresh = cpuPick(board); board[fresh] = 'O';
       const w = verdict(board);
       thinking = false;
       if (w) finishRound(w); else render();
@@ -70,7 +70,10 @@
     step.textContent = t('game.round', round, ROUNDS);
     const prog = el('div', 'g-prog');
     for (let i = 0; i < ROUNDS; i++) prog.appendChild(el('i', i < round - 1 || (i === round - 1 && over) ? 'done' : i === round - 1 ? 'now' : ''));
-    const sc = el('p', 'g-sc mono', `${t('game.you')} ${wins}  :  ${losses} ${t('game.cpu')}`);
+    body.classList.remove('g-end');
+    const sc = el('p', 'g-sc');
+    const side = (label, n) => { const s = el('span'); s.append(el('small', null, label), el('b', null, String(n))); return s; };
+    sc.append(side(t('game.you'), wins), el('i', null, ':'), side(t('game.cpu'), losses));
     const status = el('h3', 'g-q', over ? msg : t(thinking ? 'game.cpuTurn' : 'game.yourTurn'));
     status.setAttribute('role', 'status');
     const grid = el('div', 'g-board');
@@ -80,6 +83,7 @@
       c.setAttribute('aria-label', t('game.cell', i + 1, v === 'X' ? t('game.you') : v === 'O' ? t('game.cpu') : ''));
       c.disabled = over || thinking || !!v;
       if (line && line.includes(i)) c.classList.add(result === 'X' ? 'win' : 'lose');
+      if (i === fresh && v) c.classList.add('new');
       c.addEventListener('click', () => place(i));
       grid.appendChild(c);
     });
@@ -87,12 +91,14 @@
     next.type = 'button'; next.hidden = !over;
     next.addEventListener('click', () => { if (round === ROUNDS) { ended = true; renderEnd(); } else startRound(); });
     body.replaceChildren(prog, sc, status, grid, next);
+    fresh = -1;
     if (over) next.focus();
   }
 
   function renderEnd() {
     clearTimeout(timer);
     save('aic-bonus', '1');
+    body.classList.add('g-end');
     step.textContent = t('game.endTitle');
     const rank = wins >= 2 ? 'game.rank5' : wins === 1 ? 'game.rank3' : 'game.rank0';
     const prog = el('div', 'g-prog'); for (let i = 0; i < ROUNDS; i++) prog.appendChild(el('i', 'done'));
@@ -123,7 +129,11 @@
   function openGame() {
     if (pop.open) pop.close();
     resetSeries(); startRound();
-    if (!game.open) { game.showModal(); document.documentElement.classList.add('lock'); }
+    if (!game.open) {
+      game.showModal(); document.documentElement.classList.add('lock'); game.focus();
+      // занавес при открытии: только если пользователь не просил уменьшить движение
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) { game.classList.add('intro'); clearTimeout(introT); introT = setTimeout(() => game.classList.remove('intro'), 1500); }
+    }
   }
   const closeGame = () => game.close();
   game.addEventListener('close', () => { clearTimeout(timer); document.documentElement.classList.remove('lock'); });

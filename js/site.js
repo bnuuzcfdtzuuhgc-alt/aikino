@@ -346,13 +346,37 @@
     if (first || strip.children.length !== v.length) renderStrip();
     strip.querySelectorAll('button').forEach(b => {
       const on = +b.dataset.i === i; b.setAttribute('aria-current', String(on));
-      if (on) strip.scrollTo({ left: b.offsetLeft - (strip.clientWidth - b.offsetWidth) / 2, behavior: reduce ? 'auto' : 'smooth' });
+      if (on) strip.scrollTo({ left: b.offsetLeft - (strip.clientWidth - b.offsetWidth) / 2, top: b.offsetTop - (strip.clientHeight - b.offsetHeight) / 2, behavior: reduce ? 'auto' : 'smooth' });
     });
+    const p2 = n => String(n).padStart(2, '0'), numEl = $('#lb-n');
     $('#lb-meta').textContent = `${w.id} · ${TYPES[w.type]} · ${pos}/${v.length}`;
+    numEl.textContent = p2(pos); $('#lb-of').textContent = '/ ' + p2(v.length);
+    numEl.classList.remove('tick'); void numEl.offsetWidth; if (!first) numEl.classList.add('tick');
+    $('#lb-type').textContent = `${TYPES[w.type]} · ${w.id}`;
     $('#lb-title').textContent = wt(w);
     $('#lb-case').hidden = !hasCase(w);
   }
-  function open(i, btn) { opener = btn; show(i); if (!lb.open) { lb.showModal(); root.classList.add('lock'); } }
+  // карточка «вылетает» из ленты и раскрывается до размера кадра в просмотре
+  function flyFrom(btn) {
+    const from = btn && btn.querySelector('.frame'), el = stage.firstElementChild;
+    if (!motion || !from || !el || el.classList.contains('cf')) return;
+    const a = from.getBoundingClientRect(), b = el.getBoundingClientRect();
+    if (!(a.width > 0 && b.width > 0)) return;
+    el.style.animation = 'none'; el.style.transformOrigin = '0 0';
+    el.style.transform = `translate(${a.left - b.left}px,${a.top - b.top}px) scale(${a.width / b.width},${a.height / b.height})`;
+    void el.offsetWidth;
+    el.style.transition = 'transform .8s cubic-bezier(.76,0,.24,1)'; el.style.transform = 'none';
+    const clean = () => { el.style.transition = ''; el.style.transform = ''; el.style.transformOrigin = ''; };
+    el.addEventListener('transitionend', clean, { once: true }); setTimeout(clean, 1000);
+  }
+  let openT = 0;
+  function open(i, btn) {
+    opener = btn; show(i);
+    if (lb.open) return;
+    lb.showModal(); root.classList.add('lock'); lb.focus();
+    if (motion) { lb.classList.add('opening'); clearTimeout(openT); openT = setTimeout(() => lb.classList.remove('opening'), 1300); }
+    flyFrom(btn);
+  }
   function step(d) { const v = visible(); if (!v.length) return; show(v[(v.indexOf(cur) + d + v.length) % v.length], d); }
   strip.addEventListener('click', e => { const b = e.target.closest('button'); if (b) { const n = +b.dataset.i, v = visible(); show(n, v.indexOf(n) < v.indexOf(cur) ? -1 : 1); } });
   // свайп по фото и флаерам (у видео и каруселей свои жесты)

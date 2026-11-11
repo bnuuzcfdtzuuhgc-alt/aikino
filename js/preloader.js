@@ -11,15 +11,18 @@
 
   let lang = 'ru';
   try { lang = localStorage.getItem('aic-lang') || (/^(ru|uk|be|kk)/i.test(navigator.language || 'ru') ? 'ru' : 'en'); } catch { /* не критично */ }
-  const WORDS = lang === 'en'
-    ? ['VIDEO', 'PHOTO', 'REELS', 'CAROUSELS', 'FLYERS', 'AI', 'TASTE', 'SPEED']
-    : ['ВИДЕО', 'ФОТО', 'REELS', 'КАРУСЕЛИ', 'ФЛАЕРЫ', 'ИИ', 'ВКУС', 'СКОРОСТЬ'];
+  // подписи шагов: загораются, когда соответствующий ресурс действительно готов
+  const LABELS = lang === 'en'
+    ? { dom: 'Markup', fonts: 'Fonts', hero: '3D scene', works: 'Works', load: 'Page' }
+    : { dom: 'Разметка', fonts: 'Шрифты', hero: '3D-сцена', works: 'Работы', load: 'Страница' };
   const MIN = reduce ? 500 : 1700;   // чтобы переход не мелькал
   const MAX = 8000;                  // страховка: дольше не держим ни при каких условиях
   const t0 = performance.now();
-  const word = document.getElementById('pre-word'), num = document.getElementById('pre-num');
-  const fill = document.getElementById('pre-fill'), tc = document.getElementById('pre-tc');
+  const num = document.getElementById('pre-num'), fill = document.getElementById('pre-fill');
+  const tc = document.getElementById('pre-tc'), frame = document.getElementById('pre-frame'), stepsEl = document.getElementById('pre-steps');
   const pad = n => String(n).padStart(2, '0');
+  const items = {};
+  STEPS.forEach(k => { const li = document.createElement('li'); li.textContent = LABELS[k]; stepsEl.appendChild(li); items[k] = li; });
 
   const dom = () => window.PRE.done('dom');
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', dom); else dom();
@@ -39,30 +42,37 @@
     setTimeout(fontsDone, 3500);    // шрифт не пришёл: показываем сайт с запасным
   } else fontsDone();
 
-  let shown = 0, closed = false, wi = 0, flashT = 0;
+  let shown = 0, closed = false, lastReal = -1;
+  // окно кадра растёт вместе с реальным прогрессом; у вертикального экрана свои пропорции
+  const setFrame = p => {
+    const tall = innerHeight > innerWidth;
+    const v = tall ? 44 - 12 * p : 44 - 22 * p, h = tall ? 30 - 22 * p : 41 - 27 * p;
+    frame.style.clipPath = 'inset(' + v.toFixed(2) + '% ' + h.toFixed(2) + '%)';
+  };
   const close = full => {
     if (closed) return; closed = true;
-    clearInterval(flashT);
     if (full) { fill.style.transform = 'scaleX(1)'; num.textContent = '100'; }
-    word.textContent = 'AI CRAFTS'; word.className = 'pre-word fin';
-    setTimeout(() => {
-      pre.classList.add('done'); root.classList.remove('pre-lock'); root.classList.add('go');
-      setTimeout(() => pre.remove(), 1300);
-    }, reduce ? 0 : 380);
+    frame.style.clipPath = '';
+    pre.classList.add('done');
+    setTimeout(() => { root.classList.remove('pre-lock'); root.classList.add('go'); }, reduce ? 0 : 520);
+    setTimeout(() => pre.remove(), reduce ? 200 : 1200);
   };
-  const flash = () => { word.textContent = WORDS[wi % WORDS.length]; word.className = 'pre-word' + (wi % 2 ? ' o' : ''); wi++; };
   const tick = () => {
     if (closed) return;
     const dt = performance.now() - t0, real = got.size / STEPS.length * 100;
+    if (real !== lastReal) {
+      lastReal = real; setFrame(real / 100); fill.style.transform = 'scaleX(' + (real / 100).toFixed(3) + ')';
+      STEPS.forEach(k => items[k].classList.toggle('ok', got.has(k)));
+    }
     // число догоняет реальный прогресс и никогда его не обгоняет
-    shown = Math.min(real, shown + Math.max(1.2, (real - shown) * 0.16));
-    fill.style.transform = 'scaleX(' + (shown / 100).toFixed(3) + ')'; num.textContent = String(Math.round(shown));
+    shown = Math.min(real, shown + Math.max(1.4, (real - shown) * 0.14));
+    num.textContent = String(Math.round(shown));
     tc.textContent = '00:00:' + pad(Math.floor(dt / 1000) % 60) + ':' + pad(Math.floor((dt % 1000) / 40));
     if (real >= 100 && shown >= 99.5 && dt >= MIN) return close(true);
     if (dt >= MAX) return close(false);
     requestAnimationFrame(tick);
   };
-  if (!reduce) { flash(); flashT = setInterval(flash, 190); } else word.textContent = 'AI CRAFTS';
+  setFrame(0);
   requestAnimationFrame(tick);
   // вкладка в фоне: requestAnimationFrame там не работает, а сайт всё равно должен открыться
   setTimeout(() => { if (!closed) close(got.size === STEPS.length); }, MAX + 500);

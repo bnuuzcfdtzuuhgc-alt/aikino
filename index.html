@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#ebe9e3">
-<meta name="build" content="2026-11-11-r23-redesign">
+<meta name="build" content="2026-11-11-r24-viewer">
 <title>AI CRAFTS: ИИ-контент, который цепляет</title>
 <meta name="description" content="AI CRAFTS: ИИ-контент, который цепляет. Видео, фото, карусели для Instagram и флаеры за дни, а не недели. Обсудить проект.">
 <meta property="og:title" content="AI CRAFTS: ИИ-контент, который цепляет">
@@ -24,10 +24,11 @@
 </head>
 <body>
 <div id="pre" role="status" aria-live="polite" aria-label="Загрузка сайта" data-i18n-attr="aria-label:pre.aria">
+  <div class="pre-frame" id="pre-frame" aria-hidden="true"></div>
   <div class="pre-top mono" aria-hidden="true"><span class="pre-logo"><i></i>AI CRAFTS</span><span id="pre-tc">00:00:00:00</span></div>
-  <div class="pre-mid" aria-hidden="true"><div class="pre-word" id="pre-word">AI</div></div>
+  <div class="pre-n" aria-hidden="true"><span><b id="pre-num">0</b><small>%</small></span></div>
   <div class="pre-bot" aria-hidden="true">
-    <span class="pre-n"><b id="pre-num">0</b><small>%</small></span>
+    <ol class="pre-steps mono" id="pre-steps"></ol>
     <div class="pre-bar"><i id="pre-fill"></i></div>
   </div>
 </div>
@@ -229,19 +230,23 @@
   </a>
 </div>
 
-<dialog id="lb" aria-label="Просмотр работы" data-i18n-attr="aria-label:lb.aria">
+<dialog id="lb" tabindex="-1" aria-label="Просмотр работы" data-i18n-attr="aria-label:lb.aria">
   <div class="lb-bar"><span class="mono" id="lb-meta"></span><button class="ib" id="lb-close" type="button" aria-label="Закрыть" data-i18n-attr="aria-label:lb.closeAria" data-i18n="lb.close">Закрыть ✕</button></div>
   <div class="lb-stage" id="lb-stage"></div>
-  <div class="lb-strip" id="lb-strip" role="group" aria-label="Все работы" data-i18n-attr="aria-label:lb.strip"></div>
-  <div class="lb-foot">
-    <button class="ib" id="lb-case" type="button" hidden data-i18n="case.open">Кейс →</button>
-    <button class="ib" id="lb-prev" type="button" aria-label="Предыдущая работа" data-i18n-attr="aria-label:lb.prev">←</button>
-    <span class="lb-title" id="lb-title"></span>
-    <button class="ib" id="lb-next" type="button" aria-label="Следующая работа" data-i18n-attr="aria-label:lb.next">→</button>
+  <div class="lb-side">
+    <p class="lb-num" aria-hidden="true"><b id="lb-n"></b><span id="lb-of"></span></p>
+    <p class="lb-title" id="lb-title"></p>
+    <p class="mono lb-type" id="lb-type"></p>
+    <button class="btn sm" id="lb-case" type="button" hidden data-i18n="case.open">Кейс →</button>
+    <div class="lb-strip" id="lb-strip" role="group" aria-label="Все работы" data-i18n-attr="aria-label:lb.strip"></div>
+    <div class="lb-nav">
+      <button class="ib" id="lb-prev" type="button" aria-label="Предыдущая работа" data-i18n-attr="aria-label:lb.prev">←</button>
+      <button class="ib" id="lb-next" type="button" aria-label="Следующая работа" data-i18n-attr="aria-label:lb.next">→</button>
+    </div>
   </div>
 </dialog>
 
-<dialog id="game" aria-label="Мини-игра «Крестики-нолики»" data-i18n-attr="aria-label:game.aria">
+<dialog id="game" tabindex="-1" aria-label="Мини-игра «Крестики-нолики»" data-i18n-attr="aria-label:game.aria">
   <div class="g-bar"><span class="mono" id="g-step"></span><button class="ib" id="g-close" type="button" aria-label="Закрыть" data-i18n-attr="aria-label:lb.closeAria" data-i18n="lb.close">Закрыть ✕</button></div>
   <div class="g-body" id="g-body"></div>
 </dialog>
