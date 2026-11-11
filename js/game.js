@@ -150,11 +150,42 @@
   const mobile = matchMedia('(max-width: 819px), (pointer: coarse)');
   const busy = () => game.open || pop.open || $('#lb').open || $('#chat').classList.contains('open') ||
     /^(INPUT|TEXTAREA)$/.test((document.activeElement || {}).tagName || '');
-  const canShow = () => !mobile.matches && !read(SHOWN) && !read('aic-bonus') && Date.now() - born > 15000 && !busy();
-  const showExit = () => { if (!canShow()) return; save(SHOWN, '1'); pop.showModal(); };
+  const canShow = () => !mobile.matches && !read(SHOWN) && Date.now() - born > 15000 && !busy();
+  // мини-карусель: настоящие работы из портфолио, листается сама, по нажатию открывается просмотр
+  const reel = $('#exit-reel');
+  let reelT = 0;
+  const stopReel = () => { clearInterval(reelT); reelT = 0; };
+  function fillReel() {
+    const items = (window.AIC ? window.AIC.works() : []).slice(0, 10);
+    reel.hidden = items.length < 2;
+    pop.classList.toggle('solo', reel.hidden);
+    if (reel.hidden) return;
+    reel.replaceChildren(...items.map((w, k) => {
+      const b = el('button'); b.type = 'button'; b.style.setProperty('--rn', w.rn.toFixed(4)); b.style.setProperty('--k', k); b.setAttribute('aria-label', w.title);
+      const im = document.createElement('img'); im.src = w.src; im.alt = ''; im.loading = 'lazy';
+      b.append(im, el('span', 'mono', String(k + 1).padStart(2, '0')));
+      b.addEventListener('click', () => { pop.close(); window.AIC.open(w.i); });
+      return b;
+    }));
+    reel.scrollLeft = 0;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    stopReel();
+    reelT = setInterval(() => {
+      if (reel.matches(':hover') || reel.contains(document.activeElement)) return;
+      const first = reel.firstElementChild, step = first ? first.offsetWidth + 14 : 200;
+      if (reel.scrollLeft >= reel.scrollWidth - reel.clientWidth - 4) reel.scrollTo({ left: 0, behavior: 'smooth' });
+      else reel.scrollBy({ left: step, behavior: 'smooth' });
+    }, 2200);
+  }
+  const showExit = () => {
+    if (!canShow()) return; save(SHOWN, '1');
+    $('#exit-yes').hidden = !!read('aic-bonus');
+    fillReel(); pop.showModal(); pop.focus();
+  };
   document.addEventListener('mouseout', e => { if (!e.relatedTarget && e.clientY <= 0) showExit(); });
 
   $('#exit-yes').onclick = () => { pop.close(); openGame(); };
   $('#exit-no').onclick = () => pop.close();
-  pop.addEventListener('click', e => { if (e.target === pop) pop.close(); });
+  pop.addEventListener('click', e => { if (e.target === pop || e.target.closest('a')) pop.close(); });
+  pop.addEventListener('close', stopReel);
 })();

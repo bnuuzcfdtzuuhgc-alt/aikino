@@ -31,7 +31,7 @@ void main(){
 }`;
   const FS = `
 varying vec3 vPos; varying vec3 vNor; varying vec3 vSide; varying vec2 vUv;
-uniform float uFlow; uniform vec2 uPtr; uniform vec4 uDim; uniform float uHard;
+uniform float uFlow; uniform vec2 uPtr; uniform vec4 uDim; uniform float uHard; uniform float uDark;
 float aa(float d){
 #ifdef DERIV
   float w = fwidth(d) * 0.75 + 1e-5;
@@ -66,6 +66,8 @@ void main(){
 
   vec3 red = mix(vec3(0.6, 0.03, 0.06), vec3(0.86, 0.06, 0.1), win);
   vec3 ink = mix(vec3(0.03, 0.03, 0.032), vec3(0.065, 0.065, 0.07), win);
+  // в тёмной теме чёрная сторона слилась бы с фоном, поэтому она становится светлой
+  ink = mix(ink, mix(vec3(0.55, 0.54, 0.52), vec3(0.8, 0.79, 0.76), win), uDark);
   vec3 base = face > 0.0 ? red : ink;
 
   float ndl = dot(N, L) * 0.5 + 0.5;
@@ -144,7 +146,7 @@ void main(){
     gl.linkProgram(prog);
     if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog) || 'link');
     gl.useProgram(prog);
-    ['uRot', 'uOff', 'uScale', 'uProj', 'uFlow', 'uPtr', 'uDim', 'uHard'].forEach(n => { uni[n] = gl.getUniformLocation(prog, n); });
+    ['uRot', 'uOff', 'uScale', 'uProj', 'uFlow', 'uPtr', 'uDim', 'uHard', 'uDark'].forEach(n => { uni[n] = gl.getUniformLocation(prog, n); });
     const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf); gl.bufferData(gl.ARRAY_BUFFER, build(), gl.STATIC_DRAW);
     const st = 44; [[0, 3, 0], [1, 3, 12], [2, 3, 24], [3, 2, 36]].forEach(([i, n, off]) => { gl.enableVertexAttribArray(i); gl.vertexAttribPointer(i, n, gl.FLOAT, false, st, off); });
     gl.enable(gl.DEPTH_TEST); gl.disable(gl.CULL_FACE);
@@ -203,6 +205,7 @@ void main(){
     gl.uniform3f(uni.uOff, off[0], off[1], off[2]);
     gl.uniform1f(uni.uScale, scale);
     gl.uniform1f(uni.uFlow, flow);
+    gl.uniform1f(uni.uDark, root.dataset.theme === 'dark' ? 1 : 0);
     gl.uniform2f(uni.uPtr, px, py);
     gl.uniform4f(uni.uDim, frameLen, W, CAM, scale * 1.2);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, count);
@@ -244,6 +247,7 @@ void main(){
   } else addEventListener('resize', still);
   if ('IntersectionObserver' in window) new IntersectionObserver(es => { visible = es[0].isIntersecting; play(); }).observe(canvas);
   document.addEventListener('visibilitychange', play);
+  if ('MutationObserver' in window) new MutationObserver(() => { if (!running && firstFrame) draw(); }).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
   addEventListener('pointermove', e => {
     if (!visible) return;
     tx = (e.clientX / innerWidth) * 2 - 1; ty = (e.clientY / innerHeight) * 2 - 1;

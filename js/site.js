@@ -88,18 +88,13 @@
   if (motion) { html.classList.add('anim'); setTimeout(() => html.classList.add('go'), 10000); }
   buildWordmark();
   // меняющееся слово и бегущая лента
-  const swapW = $('#swap-w'), tape = $('#tape');
+  const swapW = $('#swap-w');
   let si = 0;
   const swapSet = () => {
     const a = t('hero.swapw'); swapW.textContent = a[si % a.length];
     swapW.classList.remove('flip'); void swapW.offsetWidth; swapW.classList.add('flip');
   };
-  const buildTape = () => {
-    const half = document.createDocumentFragment();
-    for (let k = 0; k < 3; k++) t('hero.tape').split('|').forEach(x => { const s = document.createElement('span'); s.textContent = x + ' ✦'; half.appendChild(s); });
-    tape.replaceChildren(half.cloneNode(true), ...half.cloneNode(true).childNodes);
-  };
-  swapSet(); buildTape();
+  swapSet();
   if (motion) setInterval(() => { si++; swapSet(); }, 1800);
   // подгоняем кегль так, чтобы надпись занимала всю ширину:
   // на компьютере это одна строка, на телефоне слова стоят друг под другом и меряется самое длинное
@@ -214,6 +209,14 @@
   }
   const counts = { all: WORKS.length }; WORKS.forEach(w => counts[w.type] = (counts[w.type] || 0) + 1);
   const FILTERS = ['all', 'video', 'photo', 'carousel', 'flyer'];
+  // «хлопушка» под главным экраном: форматы с реальным числом работ ведут сразу в отфильтрованную ленту
+  const slateF = $('#slate-f');
+  const renderSlate = () => {
+    slateF.innerHTML = FILTERS.filter(f => f !== 'all' && counts[f]).map(f => `<a href="#works" data-filter="${f}">${t('filter.' + f)}<sup>${counts[f]}</sup></a>`).join('');
+    $('#slate-n').textContent = String(WORKS.length).padStart(2, '0');
+  };
+  renderSlate();
+  slateF.addEventListener('click', e => { const a = e.target.closest('a[data-filter]'); if (a) setFilter(a.dataset.filter); });
   const renderFilters = () => {
     filtersEl.innerHTML = FILTERS.filter(f => counts[f]).map(f => `<button type="button" data-f="${f}" aria-pressed="${f === filter}">${t('filter.' + f)}<span class="n">${counts[f]}</span></button>`).join('');
   };
@@ -369,6 +372,8 @@
     const clean = () => { el.style.transition = ''; el.style.transform = ''; el.style.transformOrigin = ''; };
     el.addEventListener('transitionend', clean, { once: true }); setTimeout(clean, 1000);
   }
+  // для баннера при уходе: работы с настоящими превью и открытие просмотра
+  window.AIC = { works: () => WORKS.map((w, i) => ({ i, src: thumbSrc(w), title: wt(w), rn: rn(w) })).filter(x => x.src), open: i => open(i, null) };
   let openT = 0;
   function open(i, btn) {
     opener = btn; show(i);
@@ -571,7 +576,7 @@
   if (!links.children.length) links.remove();
   // смена языка: обновляем всё, что строится скриптом
   I18N.onChange(() => {
-    buildWordmark(); fit(); swapSet(); buildTape();
+    buildWordmark(); fit(); swapSet(); renderSlate();
     renderWorks();
     list.querySelectorAll('li').forEach(li => li.classList.add('in'));
     renderFilters(); setFilter(filter);

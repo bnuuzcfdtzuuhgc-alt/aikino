@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#ebe9e3">
-<meta name="build" content="2026-11-11-r24-viewer">
+<meta name="build" content="2026-11-11-r25-theme">
 <title>AI CRAFTS: ИИ-контент, который цепляет</title>
 <meta name="description" content="AI CRAFTS: ИИ-контент, который цепляет. Видео, фото, карусели для Instagram и флаеры за дни, а не недели. Обсудить проект.">
 <meta property="og:title" content="AI CRAFTS: ИИ-контент, который цепляет">
@@ -20,6 +20,7 @@
 <link rel="stylesheet" href="css/fonts.css">
 <link rel="stylesheet" href="css/site.css">
 <noscript><link rel="stylesheet" href="css/noscript.css"></noscript>
+<script src="js/theme.js"></script>
 <script src="js/preloader.js" defer></script>
 </head>
 <body>
@@ -41,6 +42,7 @@
       <a href="#process" data-i18n="nav.process">Процесс</a>
       <a href="#contact" data-i18n="nav.contact">Заявка</a>
     </nav>
+    <button class="theme-btn" type="button" data-theme-toggle aria-pressed="false" aria-label="Тёмная тема" data-i18n-attr="aria-label:theme.aria"><i aria-hidden="true"></i></button>
     <a class="btn sm" href="#contact" data-tg data-i18n="cta.tg">Написать в ТГ</a>
     <div class="lang" role="group" aria-label="Язык" data-i18n-attr="aria-label:lang.aria"><button type="button" data-lang="ru" aria-pressed="true">RU</button><button type="button" data-lang="en" aria-pressed="false">EN</button></div>
     <button class="menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="menu" aria-label="Меню" data-i18n-attr="aria-label:menu.open"><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span></button>
@@ -51,6 +53,7 @@
       <a href="#formats" data-i18n="nav.formats">Форматы</a><a href="#sites" data-sites hidden data-i18n="nav.sites">Сайты</a>
       <a href="#process" data-i18n="nav.process">Процесс</a>
       <a href="#contact" data-i18n="nav.contact">Заявка</a>
+      <button class="menu-theme" type="button" data-theme-toggle aria-pressed="false"><span data-i18n="theme.label">Тема</span><span class="mono"><b data-i18n="theme.light">Светлая</b><b data-i18n="theme.dark">Тёмная</b></span></button>
       <a class="btn menu-cta" href="#contact" data-tg data-i18n="cta.tgArrow">Написать в ТГ →</a>
     </div>
   </div>
@@ -63,7 +66,7 @@
       <svg viewBox="0 0 600 420" fill="none" stroke-linecap="butt">
         <path id="fb-p" d="M70 250C70 90 250 40 330 150s140 190 210 60S420 20 300 120 150 400 70 250Z"/>
         <use href="#fb-p" stroke="#e0121f" stroke-width="64"/>
-        <use href="#fb-p" stroke="#ebe9e3" stroke-width="54" stroke-dasharray="7 11"/>
+        <use class="fb-perf" href="#fb-p" stroke-width="54" stroke-dasharray="7 11"/>
         <use href="#fb-p" stroke="#c40f1b" stroke-width="40"/>
       </svg>
     </div>
@@ -87,11 +90,17 @@
             <a class="btn" href="#contact" data-tg><span data-i18n="cta.tg">Написать в ТГ</span><span class="arr" aria-hidden="true">→</span></a>
             <a class="btn ghost" href="#works"><span data-i18n="hero.works">Смотреть работы</span></a>
           </div>
-          <a class="scroll-ind mono" href="#works"><span data-i18n="hero.scroll">Листайте</span><i aria-hidden="true"></i></a>
         </div>
       </div>
     </div>
-    <div class="tape mono" aria-hidden="true"><div class="tape-in" id="tape"></div></div>
+    <div class="slate">
+      <div class="wrap slate-in">
+        <div class="slate-c"><p class="mono slate-k" data-i18n="slate.formats">Форматы</p><p class="slate-v slate-f" id="slate-f"></p></div>
+        <div class="slate-c"><p class="mono slate-k" data-i18n="slate.team">Команда</p><p class="slate-v" data-i18n="slate.teamv">ИИ + дизайнер</p></div>
+        <div class="slate-c"><p class="mono slate-k" data-i18n="slate.time">Срок</p><p class="slate-v" data-i18n="slate.timev">Дни, а не недели</p></div>
+        <a class="slate-c slate-go" href="#works"><span class="mono slate-k" data-i18n="slate.works">Работ в портфолио</span><span class="slate-v"><b id="slate-n">·</b><span class="mono" data-i18n="hero.scroll">Листайте</span><i aria-hidden="true"></i></span></a>
+      </div>
+    </div>
   </section>
 
   <section class="reel-sec" id="reel-sec" hidden>
@@ -206,13 +215,15 @@
   </div>
 </footer>
 
-<button class="chat-fab" id="chat-fab" type="button" aria-label="Открыть ИИ-ассистента" data-i18n-attr="aria-label:chat.fab" aria-expanded="false" aria-controls="chat"><i aria-hidden="true"></i>AI</button>
-<span class="chat-cap" aria-hidden="true" data-i18n="chat.cap">ИИ-консультант</span>
+<button class="chat-fab" id="chat-fab" type="button" aria-label="Открыть ИИ-ассистента" data-i18n-attr="aria-label:chat.fab" aria-expanded="false" aria-controls="chat"><i aria-hidden="true"></i><span data-i18n="chat.cap">ИИ-консультант</span></button>
 <div class="chat-tip" id="chat-tip" aria-hidden="true"></div>
 <section class="chat" id="chat" role="dialog" aria-label="ИИ-ассистент AI CRAFTS" data-i18n-attr="aria-label:chat.aria">
   <div class="chat-hd">
-    <span class="mono"><span class="rec"><i></i>REC</span><span data-i18n="chat.status">Консультант · онлайн</span></span>
-    <button class="chat-x" id="chat-x" type="button" aria-label="Закрыть чат" data-i18n-attr="aria-label:chat.close">✕</button>
+    <div>
+      <p class="mono chat-st"><span class="rec"><i></i></span><span data-i18n="chat.status">Консультант · онлайн</span></p>
+      <p class="chat-ttl" data-i18n="chat.cap">ИИ-консультант</p>
+    </div>
+    <button class="ib chat-x" id="chat-x" type="button" aria-label="Закрыть чат" data-i18n-attr="aria-label:chat.close">✕</button>
   </div>
   <div class="chat-log" id="chat-log" role="log" aria-live="polite"></div>
   <div class="chat-chips" id="chat-chips"></div>
@@ -257,13 +268,19 @@
 </dialog>
 
 <dialog id="exit" class="pop" aria-labelledby="exit-t">
-  <p class="mono pop-tag" data-i18n="exit.tag">СТОП-КАДР</p>
-  <h3 id="exit-t" data-i18n="exit.title">Стоять. Куда?</h3>
-  <p class="pop-text" data-i18n="exit.text">Вы ещё не забрали бонус. Сыграйте с режиссёром в крестики-нолики. Мы не кусаемся, мы дизайнеры.</p>
-  <div class="pop-row">
-    <button class="btn" type="button" id="exit-yes" data-i18n="exit.yes">Ладно, играю</button>
-    <button class="btn ghost" type="button" id="exit-no" data-i18n="exit.no">Нет, я упрямый</button>
+  <div class="pop-in">
+    <div class="pop-col">
+      <p class="mono pop-tag" data-i18n="exit.tag">Стоп-кадр</p>
+      <h3 id="exit-t" data-i18n="exit.title">Уже уходите?</h3>
+      <p class="pop-text" data-i18n="exit.text">Напишите пару слов о задаче, ответим лично в Telegram. Или посмотрите ещё пару работ на дорожку.</p>
+      <div class="pop-row">
+        <a class="btn" href="#contact" data-tg><span data-i18n="cta.tg">Написать в ТГ</span><span class="arr" aria-hidden="true">→</span></a>
+        <button class="btn ghost" type="button" id="exit-yes" data-i18n="exit.yes">Сыграть за бонус</button>
+      </div>
+    </div>
+    <div class="pop-reel" id="exit-reel" hidden></div>
   </div>
+  <button class="ib" type="button" id="exit-no" aria-label="Закрыть" data-i18n-attr="aria-label:lb.closeAria" data-i18n="lb.close">Закрыть ✕</button>
 </dialog>
 
 <script src="config.js" defer></script>
