@@ -45,14 +45,13 @@
   const thumb = w => { const s = thumbSrc(w); return s ? `<img src="${esc(s)}" alt="${esc(w.alt || wt(w))}" loading="lazy">` : ph(w); };
 
   // hero: reel + timecode + wordmark fit
-  const reel = $('#reel');
-  if (CONFIG.REEL.src) {
-    reel.insertAdjacentHTML('afterbegin', `<video controls playsinline preload="metadata" ${CONFIG.REEL.poster ? `poster="${esc(CONFIG.REEL.poster)}"` : ''} src="${esc(CONFIG.REEL.src)}"></video>`);
-  } else {
-    reel.insertAdjacentHTML('afterbegin', ph({type:'video', h:200}, 'REEL_001') );
-    reel.insertAdjacentHTML('beforeend', '<figcaption class="reel-cap mono"><span data-i18n="reel.cap"></span><span data-i18n="reel.soon"></span></figcaption>');
-    I18N.apply(reel);
-  }
+  // шоурил: секция появляется, только когда есть настоящее видео
+  const reel = $('#reel'), reelSec = $('#reel-sec');
+  const showReel = (src, poster) => {
+    reel.insertAdjacentHTML('afterbegin', `<video controls playsinline preload="none" ${poster ? `poster="${esc(poster)}"` : ''} src="${esc(src)}"></video>`);
+    reelSec.hidden = false;
+  };
+  if (CONFIG.REEL.src) showReel(CONFIG.REEL.src, CONFIG.REEL.poster);
   const tc = $('#tc');
   if (!reduce) {
     const t0 = performance.now(); let last = -1;
@@ -86,18 +85,8 @@
       box.appendChild(ww);
     });
   };
-  if (motion) { html.classList.add('anim'); setTimeout(() => html.classList.add('go'), 7000); }
+  if (motion) { html.classList.add('anim'); setTimeout(() => html.classList.add('go'), 10000); }
   buildWordmark();
-  if (motion) {
-    html.classList.add('stack');
-    document.querySelectorAll('.step').forEach((s, i) => s.style.setProperty('--n', i));
-    let sy = 0, ticking = false;
-    addEventListener('scroll', () => {
-      sy = Math.min(scrollY, 1200);
-      if (ticking) return; ticking = true;
-      requestAnimationFrame(() => { html.style.setProperty('--sy', sy); ticking = false; });
-    }, { passive: true });
-  }
   // меняющееся слово и бегущая лента
   const swapW = $('#swap-w'), tape = $('#tape');
   let si = 0;
@@ -112,22 +101,17 @@
   };
   swapSet(); buildTape();
   if (motion) setInterval(() => { si++; swapSet(); }, 1800);
-  // свечение за курсором
-  if (motion && matchMedia('(hover:hover) and (pointer:fine)').matches) {
-    const hero = $('.hero');
-    hero.addEventListener('pointermove', e => {
-      const r = hero.getBoundingClientRect();
-      hero.style.setProperty('--mx', (e.clientX - r.left) + 'px'); hero.style.setProperty('--my', (e.clientY - r.top) + 'px');
-    });
-  }
-  // подгоняем кегль так, чтобы строка занимала всю ширину
+  // подгоняем кегль так, чтобы надпись занимала всю ширину:
+  // на компьютере это одна строка, на телефоне слова стоят друг под другом и меряется самое длинное
   const fit = () => {
     const line = wm.firstElementChild;
     if (!line || !line.children.length) return;
     wm.style.fontSize = '100px';
-    const w = line.getBoundingClientRect().width, box = wm.clientWidth;
+    const stacked = window.getComputedStyle(line).flexDirection === 'column';
+    const w = stacked ? Math.max(...[...line.children].map(c => c.getBoundingClientRect().width)) : line.getBoundingClientRect().width;
+    const box = wm.clientWidth;
     if (!(w > 0 && box > 0)) return;
-    wm.style.fontSize = Math.min(box / w * 100 * .99, 320) + 'px';
+    wm.style.fontSize = Math.min(box / w * 100 * .985, 360) + 'px';
   };
   let fitRaf; addEventListener('resize', () => { cancelAnimationFrame(fitRaf); fitRaf = requestAnimationFrame(fit); });
   fit(); if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
@@ -205,8 +189,7 @@
       } catch { /* не критично */ }
     }
     if (!src) return;
-    reel.querySelectorAll('.ph, .reel-cap').forEach(n => n.remove());
-    reel.insertAdjacentHTML('afterbegin', `<video controls playsinline preload="metadata" ${poster ? `poster="${esc(poster)}"` : ''} src="${esc(src)}"></video>`);
+    showReel(src, poster);
   }
   setReel();
 
@@ -214,30 +197,20 @@
   const list = $('#works-list'), filtersEl = $('#filters');
   let filter = 'all';
   const renderWorks = () => {
-    list.innerHTML = WORKS.map((w, i) => `<li data-type="${w.type}" style="--rn:${rn(w).toFixed(4)}"><button class="work" type="button" data-i="${i}" aria-label="${esc(t('works.open', wt(w), TYPES[w.type]))}"><span class="frame" style="--r:${w.ratio[0]}/${w.ratio[1]}">${thumb(w)}</span><span class="cap mono"><b>${esc(wt(w))}</b><span>${TYPES[w.type]}${hasCase(w) ? ` · ${t('case.badge')}` : ''}</span></span></button></li>`).join('');
+    list.innerHTML = WORKS.map((w, i) => `<li data-type="${w.type}" style="--rn:${rn(w).toFixed(4)}"><button class="work" type="button" data-i="${i}" aria-label="${esc(t('works.open', wt(w), TYPES[w.type]))}"><span class="frame">${thumb(w)}</span><span class="cap"><span class="cap-n mono">${String(i + 1).padStart(2, '0')}</span><b>${esc(wt(w))}</b><span class="cap-t mono">${TYPES[w.type]}${hasCase(w) ? ` · ${t('case.badge')}` : ''}</span></span></button></li>`).join('');
   };
   renderWorks();
-  // 3D-наклон плиток за курсором (только мышь)
-  if (motion && matchMedia('(hover:hover) and (pointer:fine)').matches) {
-    list.addEventListener('pointermove', e => {
-      const b = e.target.closest('.work'); if (!b || e.pointerType !== 'mouse') return;
-      const r = b.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
-      b.classList.add('tilt');
-      b.style.setProperty('--ry', ((x - .5) * 12).toFixed(2) + 'deg');
-      b.style.setProperty('--rx', ((.5 - y) * 12).toFixed(2) + 'deg');
-      b.style.setProperty('--gx', (x * 100).toFixed(0) + '%'); b.style.setProperty('--gy', (y * 100).toFixed(0) + '%');
-    });
-    list.addEventListener('pointerout', e => {
-      const b = e.target.closest('.work'); if (!b || b.contains(e.relatedTarget)) return;
-      b.classList.remove('tilt'); b.style.removeProperty('--rx'); b.style.removeProperty('--ry');
-    });
-  }
+  if (window.PRE) window.PRE.done('works');
+  // появление при прокрутке: кадры работ, заголовки и строки секций
   if (motion && 'IntersectionObserver' in window) {
     html.classList.add('rv');
     const io = new IntersectionObserver(es => es.forEach(e => {
       if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
-    }), { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
-    list.querySelectorAll('li').forEach((li, i) => { li.style.setProperty('--d', (i % 3) * 90 + 'ms'); io.observe(li); });
+    }), { rootMargin: '0px 0px -6% 0px', threshold: 0.06 });
+    list.querySelectorAll('li').forEach(li => io.observe(li));
+    document.querySelectorAll('[data-rv], .fmt li, .step').forEach(el => io.observe(el));
+    // страховка: если что-то не попало в наблюдение, содержимое всё равно должно быть видно
+    setTimeout(() => html.classList.add('rv-all'), 9000);
   }
   const counts = { all: WORKS.length }; WORKS.forEach(w => counts[w.type] = (counts[w.type] || 0) + 1);
   const FILTERS = ['all', 'video', 'photo', 'carousel', 'flyer'];
@@ -402,14 +375,20 @@
     const c = csOf(w), main = w.type === 'video' && w.src
       ? `<video controls playsinline ${w.poster ? `poster="${esc(w.poster)}"` : ''} src="${esc(w.src)}"></video>`
       : thumb(w);
+    let nx = -1;
+    for (let k = 1; k < WORKS.length; k++) { const j = (i + k) % WORKS.length; if (hasCase(WORKS[j])) { nx = j; break; } }
     const blk = (k, txt, n) => txt ? `<section class="cs-b"><span class="cs-n mono">0${n}</span><h3>${t('case.' + k)}</h3><p>${esc(txt).replace(/\n/g, '<br>')}</p></section>` : '';
-    $('#case-body').innerHTML = `<p class="mono cs-kind">${w.id} · ${TYPES[w.type]}</p><h2 id="case-t">${esc(wt(w))}</h2><div class="cs-media" style="--r:${w.ratio[0]}/${w.ratio[1]}">${main}</div><div class="cs-grid">${blk('task', c.task, 1)}${blk('solution', c.solution, 2)}${blk('result', c.result, 3)}</div><div class="cs-cta"><a class="btn big" data-tg href="${esc(CONFIG.TELEGRAM || '#')}" target="_blank" rel="noopener">${t('case.cta')}</a></div>`;
+    $('#case-body').innerHTML = `<p class="mono cs-kind">${w.id} · ${TYPES[w.type]}</p><h2 id="case-t">${esc(wt(w))}</h2><div class="cs-media" style="--r:${rn(w).toFixed(4)}">${main}</div><div class="cs-grid">${blk('task', c.task, 1)}${blk('solution', c.solution, 2)}${blk('result', c.result, 3)}</div><div class="cs-cta"><a class="btn big" data-tg href="${esc(CONFIG.TELEGRAM || '#')}" target="_blank" rel="noopener">${t('case.cta')}</a></div>${nx >= 0 ? `<button class="cs-next" type="button" data-next="${nx}"><span class="mono">${t('case.next')}</span><b>${esc(wt(WORKS[nx]))}</b><span class="arr" aria-hidden="true">→</span></button>` : ''}`;
     cdlg.dataset.i = i;
     if (!cdlg.open) cdlg.showModal();
     cdlg.scrollTop = 0;
     try { window.history.replaceState(null, '', '#case-' + (i + 1)); } catch { /* не критично */ }
   }
   $('#lb-case').onclick = () => openCase(cur);
+  $('#case-body').addEventListener('click', e => {
+    const b = e.target.closest('.cs-next'); if (!b) return;
+    const n = +b.dataset.next; if (lb.open) show(n, 1); openCase(n);
+  });
   $('#case-close').onclick = () => cdlg.close();
   cdlg.addEventListener('click', e => { if (e.target === cdlg) cdlg.close(); });
   cdlg.addEventListener('close', () => {
@@ -464,12 +443,12 @@
     root.classList.toggle('tg-on', on);
     tgLink.tabIndex = on ? 0 : -1;
   };
-  addEventListener('scroll', () => { scrolled = scrollY > 480; syncBar(); }, { passive: true });
+  addEventListener('scroll', () => { scrolled = scrollY > 480; root.classList.toggle('scrolled', scrollY > 160); syncBar(); }, { passive: true });
   if ('IntersectionObserver' in window) {
     const zio = new IntersectionObserver(es => es.forEach(en => { en.isIntersecting ? hideZones.add(en.target) : hideZones.delete(en.target); syncBar(); }));
     [document.getElementById('contact'), document.querySelector('footer')].forEach(el => { if (el) zio.observe(el); });
   }
-  scrolled = scrollY > 480; syncBar();
+  scrolled = scrollY > 480; root.classList.toggle('scrolled', scrollY > 160); syncBar();
 
   // ИИ-ассистент: настоящий ИИ через /api/chat, а без него умный FAQ
   const chat = $('#chat'), fab = $('#chat-fab'), clog = $('#chat-log'), cform = $('#chat-form'), cin = $('#chat-in'), cchips = $('#chat-chips');

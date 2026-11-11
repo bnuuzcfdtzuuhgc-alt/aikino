@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#e8eae7">
-<meta name="build" content="2026-11-09-r22-ro-fix">
+<meta name="theme-color" content="#ebe9e3">
+<meta name="build" content="2026-11-11-r23-redesign">
 <title>AI CRAFTS: ИИ-контент, который цепляет</title>
 <meta name="description" content="AI CRAFTS: ИИ-контент, который цепляет. Видео, фото, карусели для Instagram и флаеры за дни, а не недели. Обсудить проект.">
 <meta property="og:title" content="AI CRAFTS: ИИ-контент, который цепляет">
@@ -16,7 +16,6 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preload" href="fonts/unbounded-cyrillic-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="fonts/bebas-neue-cyrillic-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/onest-cyrillic-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/fonts.css">
 <link rel="stylesheet" href="css/site.css">
@@ -25,9 +24,12 @@
 </head>
 <body>
 <div id="pre" role="status" aria-live="polite" aria-label="Загрузка сайта" data-i18n-attr="aria-label:pre.aria">
-  <div class="pre-top mono" aria-hidden="true"><span>AI CRAFTS</span><span id="pre-tc">00:00:00:00</span></div>
-  <div class="pre-word" id="pre-word" aria-hidden="true">AI</div>
-  <div class="pre-bot" aria-hidden="true"><span class="pre-n"><b id="pre-num">0</b><small>%</small></span><div class="pre-bar"><i id="pre-fill"></i></div></div>
+  <div class="pre-top mono" aria-hidden="true"><span class="pre-logo"><i></i>AI CRAFTS</span><span id="pre-tc">00:00:00:00</span></div>
+  <div class="pre-mid" aria-hidden="true"><div class="pre-word" id="pre-word">AI</div></div>
+  <div class="pre-bot" aria-hidden="true">
+    <span class="pre-n"><b id="pre-num">0</b><small>%</small></span>
+    <div class="pre-bar"><i id="pre-fill"></i></div>
+  </div>
 </div>
 <header class="hdr">
   <div class="wrap">
@@ -55,7 +57,16 @@
 
 <main id="top">
   <section class="hero" aria-labelledby="wm">
-    <div class="wrap">
+    <canvas class="hero-gl" id="hero3d" aria-hidden="true"></canvas>
+    <div class="hero-fb" aria-hidden="true">
+      <svg viewBox="0 0 600 420" fill="none" stroke-linecap="butt">
+        <path id="fb-p" d="M70 250C70 90 250 40 330 150s140 190 210 60S420 20 300 120 150 400 70 250Z"/>
+        <use href="#fb-p" stroke="#e0121f" stroke-width="64"/>
+        <use href="#fb-p" stroke="#ebe9e3" stroke-width="54" stroke-dasharray="7 11"/>
+        <use href="#fb-p" stroke="#c40f1b" stroke-width="40"/>
+      </svg>
+    </div>
+    <div class="wrap hero-in">
       <div class="hero-meta mono" aria-hidden="true">
         <span class="rec"><i></i>REC <span id="tc">00:00:00:00</span></span>
         <span>25 FPS</span>
@@ -63,19 +74,27 @@
       </div>
       <div class="hx-title" id="hx-title">
         <h1 class="wordmark" id="wm"><span data-i18n="hero.wm">ИИ КОНТЕНТ</span><span class="sr" data-i18n="hero.sr"> — AI CRAFTS, студия видео, фото, каруселей и флаеров</span></h1>
-        <p class="swap" aria-hidden="true"><span data-i18n="hero.swap">Делаем</span> <span class="swap-win"><b id="swap-w">Reels</b></span></p>
       </div>
       <div class="hero-row">
         <div class="lead-box">
+          <p class="swap" aria-hidden="true"><span data-i18n="hero.swap">Делаем</span> <span class="swap-win"><b id="swap-w">Reels</b></span></p>
           <p class="lead" data-i18n-html="hero.lead"><b>Ленту листают за секунду.</b> Мы делаем контент, на котором палец замирает.</p>
           <p class="lead-sub" data-i18n="hero.sub">ИИ даёт скорость, дизайнер даёт вкус. Reels, фото, карусели и флаеры за дни, а не недели.</p>
         </div>
-        <div class="cta-row">
-          <a class="btn" href="#contact" data-tg><span data-i18n="cta.tg">Написать в ТГ</span> <span aria-hidden="true">→</span></a>
-          <a class="btn ghost" href="#works" data-i18n="hero.works">Смотреть работы</a>
+        <div class="hero-side">
+          <div class="cta-row">
+            <a class="btn" href="#contact" data-tg><span data-i18n="cta.tg">Написать в ТГ</span><span class="arr" aria-hidden="true">→</span></a>
+            <a class="btn ghost" href="#works"><span data-i18n="hero.works">Смотреть работы</span></a>
+          </div>
+          <a class="scroll-ind mono" href="#works"><span data-i18n="hero.scroll">Листайте</span><i aria-hidden="true"></i></a>
         </div>
       </div>
-      <div class="tape" aria-hidden="true"><div class="tape-in" id="tape"></div></div>
+    </div>
+    <div class="tape mono" aria-hidden="true"><div class="tape-in" id="tape"></div></div>
+  </section>
+
+  <section class="reel-sec" id="reel-sec" hidden>
+    <div class="wrap">
       <figure class="reel" id="reel" aria-label="Шоурил студии" data-i18n-attr="aria-label:reel.aria">
         <i class="cm tl"></i><i class="cm tr"></i><i class="cm bl"></i><i class="cm br"></i>
       </figure>
@@ -85,10 +104,8 @@
   <section class="sec" id="works" aria-labelledby="works-h">
     <div class="wrap">
       <div class="sec-head">
-        <div>
-          <p class="eyebrow mono" id="works-count">Портфолио</p>
-          <h2 id="works-h" data-i18n="nav.works">Работы</h2>
-        </div>
+        <p class="eyebrow mono"><span class="sec-n" aria-hidden="true"></span><span id="works-count">Портфолио</span></p>
+        <h2 id="works-h" data-rv><span data-i18n="nav.works">Работы</span></h2>
         <p class="hint" data-i18n="works.hint">Выберите кадр и нырните в него: видео играет прямо внутри, карусели листаются пальцем. Всё, что вы видите, сделано под реальные задачи.</p>
       </div>
       <div class="filters" id="filters" role="group" aria-label="Фильтр по формату" data-i18n-attr="aria-label:filters.aria"></div>
@@ -106,16 +123,14 @@
   <section class="sec" id="formats" aria-labelledby="fmt-h">
     <div class="wrap">
       <div class="sec-head">
-        <div>
-          <p class="eyebrow mono" data-i18n="fmt.eyebrow">Что делаем</p>
-          <h2 id="fmt-h" data-i18n="nav.formats">Форматы</h2>
-        </div>
+        <p class="eyebrow mono"><span class="sec-n" aria-hidden="true"></span><span data-i18n="fmt.eyebrow">Что делаем</span></p>
+        <h2 id="fmt-h" data-rv><span data-i18n="nav.formats">Форматы</span></h2>
       </div>
       <ul class="fmt" id="fmt-list">
-        <li><a href="#works" data-filter="video"><span class="fmt-name" data-i18n="fmt.video.name">Видео</span><span class="fmt-desc" data-i18n="fmt.video.desc">Reels, ролики и шоурилы, которые досматривают до конца. Динамика, звук, крючок в первые три секунды.</span><span class="fmt-go" data-i18n="fmt.go">Смотреть →</span></a></li>
-        <li><a href="#works" data-filter="photo"><span class="fmt-name" data-i18n="fmt.photo.name">Фото</span><span class="fmt-desc" data-i18n="fmt.photo.desc">Кадры, от которых хочется нажать «купить»: предметка, портреты, атмосфера. Без стоковой скуки.</span><span class="fmt-go" data-i18n="fmt.go">Смотреть →</span></a></li>
-        <li><a href="#works" data-filter="carousel"><span class="fmt-name" data-i18n="fmt.carousel.name">Карусели для Instagram</span><span class="fmt-desc" data-i18n="fmt.carousel.desc">Свайп за свайпом до последнего слайда: история, ритм и сильный финал, который сохраняют и пересылают.</span><span class="fmt-go" data-i18n="fmt.go">Смотреть →</span></a></li>
-        <li><a href="#works" data-filter="flyer"><span class="fmt-name" data-i18n="fmt.flyer.name">Флаеры</span><span class="fmt-desc" data-i18n="fmt.flyer.desc">Афиши и листовки, которые берут в руки, а не выбрасывают. Для печати и для экрана.</span><span class="fmt-go" data-i18n="fmt.go">Смотреть →</span></a></li>
+        <li><a href="#works" data-filter="video"><span class="fmt-name" data-i18n="fmt.video.name">Видео</span><span class="fmt-desc" data-i18n="fmt.video.desc">Reels, ролики и шоурилы, которые досматривают до конца. Динамика, звук, крючок в первые три секунды.</span><span class="fmt-go mono"><span data-i18n="fmt.go">Смотреть →</span></span></a></li>
+        <li><a href="#works" data-filter="photo"><span class="fmt-name" data-i18n="fmt.photo.name">Фото</span><span class="fmt-desc" data-i18n="fmt.photo.desc">Кадры, от которых хочется нажать «купить»: предметка, портреты, атмосфера. Без стоковой скуки.</span><span class="fmt-go mono"><span data-i18n="fmt.go">Смотреть →</span></span></a></li>
+        <li><a href="#works" data-filter="carousel"><span class="fmt-name" data-i18n="fmt.carousel.name">Карусели для Instagram</span><span class="fmt-desc" data-i18n="fmt.carousel.desc">Свайп за свайпом до последнего слайда: история, ритм и сильный финал, который сохраняют и пересылают.</span><span class="fmt-go mono"><span data-i18n="fmt.go">Смотреть →</span></span></a></li>
+        <li><a href="#works" data-filter="flyer"><span class="fmt-name" data-i18n="fmt.flyer.name">Флаеры</span><span class="fmt-desc" data-i18n="fmt.flyer.desc">Афиши и листовки, которые берут в руки, а не выбрасывают. Для печати и для экрана.</span><span class="fmt-go mono"><span data-i18n="fmt.go">Смотреть →</span></span></a></li>
       </ul>
     </div>
   </section>
@@ -123,24 +138,25 @@
   <section class="sec" id="sites" aria-labelledby="sites-h" hidden>
     <div class="wrap">
       <div class="sec-head">
-        <div>
-          <p class="eyebrow mono" data-i18n="sites.eyebrow">Живые проекты</p>
-          <h2 id="sites-h" data-i18n="nav.sites">Сайты</h2>
-        </div>
+        <p class="eyebrow mono"><span class="sec-n" aria-hidden="true"></span><span data-i18n="sites.eyebrow">Живые проекты</span></p>
+        <h2 id="sites-h" data-rv><span data-i18n="nav.sites">Сайты</span></h2>
         <p class="hint" data-i18n="sites.hint">Сайты, которые уже работают. Нажмите на карточку, чтобы открыть проект.</p>
       </div>
       <ul class="sites" id="sites-list"></ul>
     </div>
   </section>
 
-  <section class="strip" id="process" aria-labelledby="proc-h">
+  <section class="sec proc" id="process" aria-labelledby="proc-h">
     <div class="wrap">
-      <h2 id="proc-h" data-i18n="proc.title">Как работаем</h2>
+      <div class="sec-head">
+        <p class="eyebrow mono"><span class="sec-n" aria-hidden="true"></span><span data-i18n="nav.process">Процесс</span></p>
+        <h2 id="proc-h" data-rv><span data-i18n="proc.title">Как работаем</span></h2>
+      </div>
       <ol class="steps">
-        <li class="step"><p class="mono" data-frame="1">Кадр 1</p><h3 data-i18n="proc.1.t">Завязка</h3><p data-i18n="proc.1.d">Рассказываете задачу в двух словах. Мы быстро предлагаем идею.</p></li>
-        <li class="step"><p class="mono" data-frame="2">Кадр 2</p><h3 data-i18n="proc.2.t">Съёмка</h3><p data-i18n="proc.2.d">ИИ и руки дизайнера вместе делают сырой материал за дни.</p></li>
-        <li class="step"><p class="mono" data-frame="3">Кадр 3</p><h3 data-i18n="proc.3.t">Монтаж</h3><p data-i18n="proc.3.d">Доводим до блеска и правим, пока вам не захочется выложить это сегодня.</p></li>
-        <li class="step"><p class="mono" data-frame="4">Кадр 4</p><h3 data-i18n="proc.4.t">Премьера</h3><p data-i18n="proc.4.d">Отдаём файлы под каждую площадку. Остаётся нажать «опубликовать».</p></li>
+        <li class="step"><p class="mono step-n" data-frame="1">Кадр 1</p><h3 data-i18n="proc.1.t">Завязка</h3><p data-i18n="proc.1.d">Рассказываете задачу в двух словах. Мы быстро предлагаем идею.</p></li>
+        <li class="step"><p class="mono step-n" data-frame="2">Кадр 2</p><h3 data-i18n="proc.2.t">Съёмка</h3><p data-i18n="proc.2.d">ИИ и руки дизайнера вместе делают сырой материал за дни.</p></li>
+        <li class="step"><p class="mono step-n" data-frame="3">Кадр 3</p><h3 data-i18n="proc.3.t">Монтаж</h3><p data-i18n="proc.3.d">Доводим до блеска и правим, пока вам не захочется выложить это сегодня.</p></li>
+        <li class="step"><p class="mono step-n" data-frame="4">Кадр 4</p><h3 data-i18n="proc.4.t">Премьера</h3><p data-i18n="proc.4.d">Отдаём файлы под каждую площадку. Остаётся нажать «опубликовать».</p></li>
       </ol>
     </div>
   </section>
@@ -158,24 +174,23 @@
     </div>
   </section>
 
-  <section class="sec" id="contact" aria-labelledby="contact-h">
-    <div class="wrap contact">
-      <div>
-        <p class="eyebrow mono" data-i18n="nav.contact">Заявка</p>
-        <h2 id="contact-h" data-i18n="contact.title">Запускаем съёмку?</h2>
-        <p class="hint" data-i18n="contact.hint">Пара строк о вашей идее, и мы вернёмся с планом, сроками и первой задумкой. Без долгих брифов и скучных созвонов.</p>
-        <ul class="links" id="links"></ul>
-      </div>
-      <div class="contact-cta">
-        <a class="btn big" href="#" data-tg><span data-i18n="cta.tg">Написать в ТГ</span> <span aria-hidden="true">→</span></a>
-        <p class="mono contact-note" data-i18n="contact.note">Отвечаем лично в Telegram</p>
+  <section class="sec contact-sec" id="contact" aria-labelledby="contact-h">
+    <div class="wrap">
+      <p class="eyebrow mono"><span class="sec-n" aria-hidden="true"></span><span data-i18n="nav.contact">Контакты</span></p>
+      <h2 class="contact-h" id="contact-h" data-rv><span data-i18n="contact.title">Есть идея? Напишите</span></h2>
+      <div class="contact-row">
+        <p class="hint" data-i18n="contact.hint">Расскажите пару строк о задаче в Telegram, и мы вернёмся с планом, сроками и первой задумкой. Без долгих брифов.</p>
+        <div class="contact-cta">
+          <a class="btn big" href="#" data-tg><span data-i18n="cta.tg">Написать в ТГ</span><span class="arr" aria-hidden="true">→</span></a>
+          <p class="mono contact-note" data-i18n="contact.note">Отвечаем лично в Telegram</p>
+          <ul class="links" id="links"></ul>
+        </div>
       </div>
     </div>
   </section>
 </main>
 
 <footer class="ftr">
-  <div class="bars" aria-hidden="true"></div>
   <div class="wrap ftr-in">
     <p class="end" aria-hidden="true"><span class="end-t" data-i18n="footer.end">КОНЕЦ</span><span>.</span></p>
     <div class="credits mono">
@@ -248,6 +263,7 @@
 
 <script src="config.js" defer></script>
 <script src="js/i18n.js" defer></script>
+<script src="js/hero3d.js" defer></script>
 <script src="js/site.js" defer></script>
 <script src="js/game.js" defer></script>
 

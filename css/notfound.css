@@ -1,7 +1,8 @@
-:root{color-scheme:dark}
-body{margin:0;min-height:100dvh;display:grid;place-items:center;background:#0b0c0e;color:#eceee9;font-family:'Onest',system-ui,sans-serif;text-align:center}
-main{padding:24px}
-.code{margin:0;font-family:'Unbounded','Arial Black',system-ui,sans-serif;font-weight:800;font-size:clamp(5rem,26vw,14rem);line-height:1;color:#e3212d}
-h1{margin:12px 0 28px;font-size:clamp(1.1rem,3vw,1.6rem);font-weight:600}
-.back{display:inline-block;padding:14px 22px;background:#e3212d;color:#fff;text-decoration:none;font-weight:600}
-.back:hover,.back:focus-visible{background:#eceee9;color:#0b0c0e}
+:root{color-scheme:light}
+body{margin:0;min-height:100dvh;display:grid;place-items:center;background:#ebe9e3;color:#0c0c0c;font-family:'Onest',system-ui,sans-serif}
+main{width:100%;max-width:1440px;padding:24px clamp(16px,3.2vw,44px);box-sizing:border-box}
+.code{margin:0;font-family:'Unbounded','Arial Black',system-ui,sans-serif;font-weight:800;font-size:clamp(6rem,34vw,26rem);line-height:.84;letter-spacing:-.05em}
+.code::after{content:".";color:#e0121f}
+h1{margin:24px 0 28px;padding-top:12px;border-top:1px solid #0c0c0c;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.78rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase}
+.back{display:inline-flex;align-items:center;min-height:56px;padding:0 22px;background:#e0121f;color:#fff;text-decoration:none;font-weight:600}
+.back:hover,.back:focus-visible{background:#0c0c0c}
