@@ -91,11 +91,12 @@
   const swapW = $('#swap-w');
   let si = 0;
   const swapSet = () => {
+    if (!swapW) return;
     const a = t('hero.swapw'); swapW.textContent = a[si % a.length];
     swapW.classList.remove('flip'); void swapW.offsetWidth; swapW.classList.add('flip');
   };
   swapSet();
-  if (motion) setInterval(() => { si++; swapSet(); }, 1800);
+  if (motion && swapW) setInterval(() => { si++; swapSet(); }, 1800);
   // подгоняем кегль так, чтобы надпись занимала всю ширину:
   // на компьютере это одна строка, на телефоне слова стоят друг под другом и меряется самое длинное
   const fit = () => {

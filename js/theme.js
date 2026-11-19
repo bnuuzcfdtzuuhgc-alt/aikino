@@ -2,7 +2,7 @@
 // Подключается в <head> без defer, чтобы страница сразу рисовалась в нужной теме.
 (() => {
   const KEY = 'aic-theme', root = document.documentElement;
-  const COLORS = { light: '#ebe9e3', dark: '#0e0e0d' };
+  const COLORS = { light: '#ffffff', dark: '#111111' };
   let theme = 'light';
   try { if (localStorage.getItem(KEY) === 'dark') theme = 'dark'; } catch { /* не критично */ }
   const paint = () => {
