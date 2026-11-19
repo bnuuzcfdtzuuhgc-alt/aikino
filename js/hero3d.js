@@ -1,4 +1,4 @@
-// 3D-сцена главного экрана: гипсовая голова в чёрной лаковой маске.
+// 3D-сцена главного экрана: гипсовая голова в красных лаковых очках-маске.
 // Чистый WebGL без библиотек: лицо описано функцией расстояния (SDF) и рисуется лучами в одном шейдере.
 // Голова поворачивается за курсором, глаза следят за ним. Качество подстраивается под устройство;
 // вне экрана и в фоне рендер останавливается.
@@ -60,7 +60,7 @@ float headD(vec3 p, vec3 q){
   return max(d, -1.6 - p.y);
 }
 float eyeD(vec3 q){ return length(q - EYE) - 0.11; }
-// маска-домино: тонкая оболочка поверх лица, вырезанная по контуру, с прорезями для глаз
+// очки-маска: тонкая оболочка поверх лица, вырезанная по контуру, с прорезями для глаз
 float maskD(vec3 p, vec3 q){
   float b = smin(faceBase(p, q), sdCap(p, vec3(0.0, 0.16, 0.78), vec3(0.0, -0.05, 0.9), 0.07), 0.08);
   float shell = abs(b - 0.03) - 0.022;
@@ -108,12 +108,13 @@ vec3 shade(vec3 p, vec3 rd){
   vec3 h = normalize(L + v);
   vec3 col;
   if (dm <= min(dh, de)) {
-    // чёрный лак: тёмная основа, отражение софтбокса и узкий блик
+    // красный лак: насыщенная основа, отражение софтбокса и узкий белый блик
     vec3 r = reflect(rd, n);
     float box = smoothstep(0.25, 0.55, r.y) * smoothstep(-0.95, -0.35, r.x) * smoothstep(0.5, 0.05, r.x);
-    col = vec3(0.022) * (0.4 + 0.6 * dif);
-    col += vec3(0.95) * pow(max(dot(n, h), 0.0), 110.0) * sh;
-    col += vec3(0.3) * box + vec3(0.1) * fre;
+    vec3 red = vec3(0.78, 0.035, 0.05);
+    col = red * (0.28 + 0.72 * dif * mix(0.6, 1.0, sh)) + red * 0.18 * fill;
+    col += vec3(1.0) * pow(max(dot(n, h), 0.0), 110.0) * sh;
+    col += vec3(1.0, 0.55, 0.52) * 0.32 * box + vec3(1.0, 0.4, 0.4) * 0.14 * fre;
     col *= mix(0.55, 1.0, occ);
   } else {
     // матовый гипс
@@ -274,6 +275,12 @@ void main(){
     else if (!want) running = false;
   };
   const still = () => { if (!running && layout()) draw(); };
+
+  // холст заканчивается над тёмной полосой под главным экраном: под ней рисовать нечего
+  const slate = document.querySelector('.hero .slate');
+  const fitSlate = () => { if (slate) canvas.style.setProperty('--sh', slate.offsetHeight + 'px'); };
+  fitSlate();
+  if (slate && 'ResizeObserver' in window) new ResizeObserver(fitSlate).observe(slate);
 
   if (!layout()) { return fallback(); }
   draw();
