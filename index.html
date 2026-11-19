@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
-<meta name="build" content="2026-11-20-r27-red">
+<meta name="build" content="2026-11-20-r28-stop">
 <title>AI CRAFTS — ИИ-контент</title>
 <meta name="description" content="Видео, фото, карусели и флаеры с помощью ИИ. За дни.">
 <meta property="og:title" content="AI CRAFTS — ИИ-контент">
@@ -95,6 +95,33 @@
         <div class="slate-c slate-fc"><p class="mono slate-k" data-i18n="slate.formats">Форматы</p><p class="slate-f" id="slate-f"></p></div>
         <div class="slate-c"><p class="mono slate-k" data-i18n="slate.time">Срок</p><p class="slate-big" data-i18n="slate.timev">Дни</p></div>
         <a class="slate-c slate-go" href="#works"><span class="mono slate-k" data-i18n="slate.works">Работ</span><span class="slate-big"><b id="slate-n">·</b></span><span class="slate-arr" aria-hidden="true">↓</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec stop-sec" id="stop" aria-labelledby="stop-h">
+    <div class="wrap stop-in">
+      <div class="stop-txt">
+        <p class="eyebrow mono"><span class="sec-n" aria-hidden="true"></span><span data-i18n="stop.eyebrow">Эксперимент</span></p>
+        <h2 id="stop-h" data-rv><span data-i18n="stop.title">Остановите ленту</span></h2>
+        <p class="stop-lead" data-i18n-html="stop.lead">На один пост в ленте уходит меньше двух секунд. <b>Поймайте красный кадр.</b></p>
+        <dl class="stop-stats mono">
+          <div><dt data-i18n="stop.tries">Попыток</dt><dd id="st-tries">0</dd></div>
+          <div><dt data-i18n="stop.hits">Поймано</dt><dd id="st-hits">0</dd></div>
+          <div><dt data-i18n="stop.best">Рекорд</dt><dd id="st-best">—</dd></div>
+        </dl>
+        <p class="stop-msg" id="st-msg" aria-live="polite" data-i18n="stop.hint">Жмите «Стоп», когда увидите красный.</p>
+        <a class="btn stop-cta" id="st-cta" href="#contact" data-tg hidden><span data-i18n="stop.cta">Хочу такой кадр</span><span class="arr" aria-hidden="true">→</span></a>
+      </div>
+      <div class="stop-stage">
+        <div class="phone" id="st-phone">
+          <div class="ph-scr">
+            <div class="ph-top mono"><span>Reels</span><span id="st-clock">9:41</span></div>
+            <div class="feed" id="st-feed" aria-hidden="true"></div>
+            <div class="ph-res" id="st-res" aria-hidden="true"></div>
+          </div>
+        </div>
+        <button class="stop-btn" id="st-btn" type="button"><span data-i18n="stop.btn">Стоп</span></button>
       </div>
     </div>
   </section>
@@ -284,6 +311,7 @@
 <script src="js/hero3d.js" defer></script>
 <script src="js/site.js" defer></script>
 <script src="js/game.js" defer></script>
+<script src="js/stop.js" defer></script>
 
 </body>
 </html>

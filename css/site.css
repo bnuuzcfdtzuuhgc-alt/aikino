@@ -217,6 +217,68 @@ html.lock,html.pre-lock{overflow:hidden}
 .anim .hero-meta,.anim .hero-row,.anim .slate{opacity:0;transform:translateY(14px);transition:opacity .9s .65s,transform .9s .65s var(--ease)}
 .anim.go .hero-meta,.anim.go .hero-row,.anim.go .slate{opacity:1;transform:none}
 
+/* ---------- «Остановите ленту»: игра с телефоном ---------- */
+.stop-sec{overflow:clip}
+.stop-in{display:grid;gap:clamp(40px,6vw,96px);align-items:center}
+.stop-txt .eyebrow{margin-bottom:14px}
+.stop-txt h2{margin-bottom:clamp(18px,2.4vw,32px);font-size:clamp(2.4rem,6.4vw,6.6rem);overflow-wrap:normal}
+.stop-lead{max-width:24ch;font-size:clamp(1.2rem,1.8vw,1.6rem);font-weight:500;line-height:1.22;letter-spacing:-.015em}
+.stop-lead b{font-weight:700;color:var(--red)}
+.stop-stats{display:flex;gap:clamp(24px,3.4vw,56px);margin:clamp(28px,3.6vw,52px) 0 16px;padding-top:14px;border-top:1px solid var(--line)}
+.stop-stats div{display:grid;gap:8px}
+.stop-stats dt{color:var(--muted)}
+.stop-stats dd{margin:0;font-family:var(--font-display);font-weight:800;font-size:clamp(2rem,4.2vw,3.8rem);line-height:.9;letter-spacing:-.05em;text-transform:none;color:var(--ink);font-variant-numeric:tabular-nums}
+.stop-stats dd.bump{animation:numup .5s var(--ease)}
+.stop-msg{min-height:1.5em;color:var(--muted);font-weight:500}
+.stop-msg.win{color:var(--ink)}
+.stop-cta{margin-top:20px}
+.stop-cta:not([hidden]){animation:lbup .6s var(--ease) both}
+.stop-stage{display:grid;justify-items:center;gap:clamp(18px,2.4vw,28px);perspective:1100px}
+.phone{--rx:0deg;--ry:0deg;position:relative;width:min(290px,70vw,calc(56svh / 2.07));aspect-ratio:9/18.6;padding:9px;border-radius:44px;background:#111;cursor:pointer;transform:rotateX(var(--rx)) rotateY(var(--ry));transition:transform .6s var(--ease);-webkit-tap-highlight-color:transparent}
+:root[data-theme="dark"] .phone{background:#2b2b2b}
+.phone::before{content:"";position:absolute;top:18px;left:50%;z-index:5;width:76px;height:20px;margin-left:-38px;border-radius:20px;background:#111}
+.ph-scr{position:relative;height:100%;border-radius:36px;overflow:hidden;background:#000;isolation:isolate}
+.ph-top{position:absolute;top:0;left:0;right:0;z-index:3;display:flex;justify-content:space-between;padding:16px 22px;color:#fff;font-size:.6rem;pointer-events:none}
+.feed{height:100%;display:flex;flex-direction:column}
+.feed.mv{transition:transform .2s cubic-bezier(.3,.7,.2,1)}
+.fc{position:relative;flex:0 0 100%;height:100%;overflow:hidden;color:#fff;background:radial-gradient(circle at var(--x,50%) var(--y,40%),rgba(255,255,255,.28),transparent 42%),linear-gradient(165deg,var(--g,#888),var(--g2,#222))}
+.fc-side{position:absolute;right:12px;bottom:96px;display:grid;gap:18px;justify-items:center;text-align:center;font-size:.58rem;line-height:1.5}
+.fc-l{position:absolute;left:16px;right:60px;bottom:48px;font-weight:600;font-size:1.02rem;line-height:1.2}
+.fc-u{position:absolute;left:16px;bottom:24px;font-size:.56rem;opacity:.75}
+.fc-bar{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.9);transform:scaleX(0);transform-origin:0 50%}
+.fc.on .fc-bar{animation:fcbar var(--t,600ms) linear forwards}
+.fc.frozen .fc-bar{animation-play-state:paused}
+@keyframes fcbar{to{transform:scaleX(1)}}
+.fc.ours{background:var(--red)}
+.fc-logo{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;gap:14px}
+.fc-logo svg{width:44%;height:auto}
+.fc.on .fc-logo svg{animation:fcpop .45s var(--ease) both}
+@keyframes fcpop{from{transform:scale(.6) rotate(-8deg);opacity:0}}
+.fc-logo b{font-family:var(--font-display);font-weight:800;font-size:1.35rem;letter-spacing:.06em}
+.ph-res{position:absolute;inset:0;z-index:4;display:grid;place-content:center;justify-items:center;gap:10px;padding:24px;text-align:center;color:#fff;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .3s}
+.ph-res.on{opacity:1}
+.ph-res b{font-family:var(--font-display);font-weight:800;font-size:clamp(2.4rem,5vw,3.4rem);line-height:1;letter-spacing:-.05em}
+.phone.win .ph-res{background:rgba(0,0,0,.28)}
+.phone.win .ph-res b{animation:fcpop .5s var(--ease) both}
+.phone.miss{animation:shake .45s}
+@keyframes shake{20%,60%{translate:-9px 0}40%,80%{translate:9px 0}}
+.stop-btn{display:grid;place-items:center;width:clamp(96px,9vw,118px);aspect-ratio:1;padding:0;border:0;border-radius:50%;background:var(--red);color:var(--on-red);font-family:var(--font-display);font-weight:800;font-size:1rem;letter-spacing:-.02em;text-transform:uppercase;cursor:pointer;transition:transform .15s,background .25s,color .25s}
+.stop-btn:hover{transform:scale(1.05)}
+.stop-btn:active{transform:scale(.92)}
+.stop-btn.again{background:var(--ink);color:var(--paper)}
+@media (max-width:899px){
+  /* телефон: заголовок, затем сама игра, счёт под ней */
+  .stop-in{display:flex;flex-direction:column;align-items:stretch;gap:0}
+  .stop-txt{display:contents}
+  .stop-stage{order:4;margin-top:32px}
+  .stop-stats{order:5;justify-content:center;margin-top:28px}
+  .stop-msg{order:6;text-align:center}
+  .stop-cta{order:7;align-self:center}
+}
+@media (min-width:900px){
+  .stop-in{grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr)}
+}
+
 /* шоурил */
 .reel-sec{padding-top:clamp(24px,4vw,56px)}
 .reel{margin:0;position:relative;aspect-ratio:16/9;background:#0c0c0c;overflow:hidden}
