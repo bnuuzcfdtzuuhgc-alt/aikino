@@ -1,5 +1,6 @@
 // Секция «Остановите ленту»: телефон сам листает Reels, нужно нажать «Стоп» на красном кадре.
 // Карточки создаются на лету, в ленте всегда две: текущая и следующая. Вне экрана лента стоит.
+// Ролики берутся из таблицы feed (админка → «Лента в телефоне»); если там пусто — серые карточки с подписями.
 (() => {
   const $ = s => document.querySelector(s);
   const feed = $('#st-feed'), btn = $('#st-btn'), phone = $('#st-phone'), res = $('#st-res');
@@ -9,6 +10,30 @@
   const MOVE = reduce ? 0 : 200;
   const TONES = [['#8d8d8d', '#3b3b3b'], ['#b9b9b9', '#6a6a6a'], ['#5a5a5a', '#1e1e1e'], ['#a3a3a3', '#2c2c2c'], ['#d0d0d0', '#7d7d7d'], ['#747474', '#141414']];
   const MASK = '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 6C19 6 11 16 11 30c0 10 3 17 7 22 4 5 9 8 14 8s10-3 14-8c4-5 7-12 7-22C53 16 45 6 32 6Z" fill="#fff"/><path d="M8 27c0-4 6-6 12-6 5 0 8 2 12 2s7-2 12-2c6 0 12 2 12 6 0 6-5 11-11 11-5 0-9-4-13-4s-8 4-13 4c-6 0-11-5-11-11Z" fill="#111"/><ellipse cx="21" cy="29" rx="4.5" ry="2.6" fill="#fff"/><ellipse cx="43" cy="29" rx="4.5" ry="2.6" fill="#fff"/></svg>';
+
+  // ролики из админки
+  const C = window.SITE_CONFIG || {}, BASE = (C.SUPABASE_URL || '').replace(/\/$/, ''), KEY = C.SUPABASE_ANON_KEY || '';
+  let OTHERS = [], OURS = [], oi = 0;
+  const labelOf = r => (I18N.lang === 'en' ? r.label_en || r.label_ru : r.label_ru || r.label_en) || '';
+  const safeUrl = u => { try { const x = new URL(u); return /^https?:$/.test(x.protocol) ? x.href : ''; } catch { return ''; } };
+  if (BASE && KEY) {
+    fetch(`${BASE}/rest/v1/feed?select=kind,label_ru,label_en,media_type,file_url,poster_url&published=eq.true&order=sort.asc,created_at.desc`, { headers: { apikey: KEY } })
+      .then(r => r.ok ? r.json() : [])
+      .then(rows => {
+        if (!Array.isArray(rows)) return;
+        rows.forEach(r => { r.file_url = safeUrl(r.file_url); r.poster_url = safeUrl(r.poster_url); });
+        OTHERS = rows.filter(r => r.kind !== 'ours'); OURS = rows.filter(r => r.kind === 'ours');
+        // картинки заранее в кэш, чтобы кадр не появлялся пустым
+        rows.forEach(r => { const u = r.media_type === 'video' ? r.poster_url : r.file_url; if (u) { const im = new Image(); im.src = u; } });
+      })
+      .catch(() => { /* остаются серые карточки */ });
+  }
+  const media = r => {
+    if (!r || !r.media_type || !r.file_url) return '';
+    const esc = v => v.replace(/"/g, '&quot;');
+    if (r.media_type === 'video') return `${r.poster_url ? `<img class="fc-m" src="${esc(r.poster_url)}" alt="">` : ''}<video class="fc-m" src="${esc(r.file_url)}" muted playsinline loop preload="auto"></video><i class="fc-sh"></i>`;
+    return `<img class="fc-m" src="${esc(r.file_url)}" alt=""><i class="fc-sh"></i>`;
+  };
 
   let running = false, visible = false, stopped = false, timer = 0, moving = false, moveAt = 0;
   let since = 0, gap = 5, shownAt = 0, tries = 0, hits = 0, best = Infinity, li = 0;
@@ -20,9 +45,23 @@
     const c = document.createElement('div');
     c.className = 'fc' + (ours ? ' ours' : '');
     c.style.setProperty('--t', hold + 'ms');
-    if (ours) {
+    if (ours && OURS.length) {
+      // наш кадр из админки: в красной рамке, с плашкой AI CRAFTS
+      const r = OURS[Math.floor(Math.random() * OURS.length)];
+      c.dataset.ours = '1'; c.classList.add('media');
+      c.innerHTML = `${media(r)}<i class="fc-frame"></i><span class="fc-badge mono">AI CRAFTS</span><span class="fc-l"></span><span class="fc-u mono">@aicrafts · ${t('stop.ours')}</span><i class="fc-bar"></i>`;
+      c.querySelector('.fc-l').textContent = labelOf(r);
+    } else if (ours) {
       c.dataset.ours = '1';
       c.innerHTML = `<span class="fc-logo">${MASK}<b>AI CRAFTS</b></span><span class="fc-u mono">@aicrafts · ${t('stop.ours')}</span><i class="fc-bar"></i>`;
+    } else if (OTHERS.length) {
+      const r = OTHERS[oi++ % OTHERS.length], label = labelOf(r);
+      const [g1, g2] = TONES[Math.floor(Math.random() * TONES.length)];
+      c.dataset.label = label || '…';
+      if (r.file_url && r.media_type) c.classList.add('media');
+      c.style.cssText += `;--g:${g1};--g2:${g2};--x:${rnd(15, 85)}%;--y:${rnd(15, 65)}%`;
+      c.innerHTML = `${media(r)}<span class="fc-side mono"><span>♥<br>${fmtK()}</span><span>◯<br>${fmtK()}</span><span>↗</span></span><span class="fc-l"></span><span class="fc-u mono">@user_${Math.floor(rnd(1000, 9999))}</span><i class="fc-bar"></i>`;
+      c.querySelector('.fc-l').textContent = label;
     } else {
       const list = t('stop.feed'), label = list[li++ % list.length];
       const [g1, g2] = TONES[Math.floor(Math.random() * TONES.length)];
@@ -50,6 +89,7 @@
       while (feed.children.length > 1) feed.firstElementChild.remove();
       feed.classList.remove('mv'); feed.style.transform = '';
       next.classList.add('on');
+      const v = next.querySelector('video'); if (v) { v.currentTime = 0; v.play().catch(() => {}); }
       shownAt = performance.now();
       if (running) timer = setTimeout(step, hold);
     };
@@ -76,6 +116,7 @@
     if (moving) { [...feed.children].forEach(c => { if (c !== cur) c.remove(); }); feed.classList.remove('mv'); feed.style.transform = ''; moving = false; }
     stopped = true; play();
     cur && cur.classList.add('on', 'frozen');
+    const cv = cur && cur.querySelector('video'); if (cv) cv.pause();
     tries++; setNum('#st-tries', tries);
     const msg = $('#st-msg'), win = !!(cur && cur.dataset.ours);
     phone.classList.remove('win', 'miss'); void phone.offsetWidth; phone.classList.add(win ? 'win' : 'miss');
@@ -96,7 +137,7 @@
   }
   function again() {
     res.classList.remove('on'); phone.classList.remove('win', 'miss');
-    const f = feed.firstElementChild; if (f) f.classList.remove('frozen');
+    const f = feed.firstElementChild; if (f) { f.classList.remove('frozen'); const v = f.querySelector('video'); if (v) v.play().catch(() => {}); }
     stopped = false; since = Math.max(since, gap - 3); setBtn('stop.btn'); play();
   }
   const press = () => (stopped ? again() : stop());

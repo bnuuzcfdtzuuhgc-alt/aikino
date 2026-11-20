@@ -6,7 +6,8 @@
   const LS = 'aic-admin-session';
   const TYPE_RU = { video:'Видео', photo:'Фото', carousel:'Карусель', flyer:'Флаер' };
   let session = null;
-  const state = { works: [], sites: [] };
+  const state = { works: [], sites: [], feed: [] };
+  const LIST = { works: ['#w-list', '#w-status'], sites: ['#s-list', '#s-status'], feed: ['#f-list', '#f-status'] };
 
   // сессия и запросы
   try { session = JSON.parse(sessionStorage.getItem(LS) || 'null'); } catch { session = null; }
@@ -68,40 +69,41 @@
   const show = authed => { $('#login').hidden = authed; $('#panel').hidden = !authed; $('#logout').hidden = !authed; };
   async function boot() {
     if (!BASE || !KEY) { $('#login').hidden = false; $('#cfg-warn').hidden = false; $('#login-form').hidden = true; return; }
-    if (session) { try { await token(); show(true); await Promise.all([loadList('works'), loadList('sites')]); return; } catch { saveSession(null); } }
+    if (session) { try { await token(); show(true); await Promise.all([loadList('works'), loadList('sites'), loadList('feed')]); return; } catch { saveSession(null); } }
     show(false);
   }
   $('#login-form').addEventListener('submit', async ev => {
     ev.preventDefault(); const st = $('#l-status'), b = $('#l-btn'); st.className = 'status'; st.textContent = 'Входим…'; b.disabled = true;
     try {
       saveSession(await authReq('password', { email: $('#l-email').value.trim(), password: $('#l-pass').value }));
-      $('#l-pass').value = ''; st.textContent = ''; show(true); await Promise.all([loadList('works'), loadList('sites')]);
+      $('#l-pass').value = ''; st.textContent = ''; show(true); await Promise.all([loadList('works'), loadList('sites'), loadList('feed')]);
     } catch (e) { st.className = 'status err'; st.textContent = e.message; }
     finally { b.disabled = false; }
   });
-  $('#logout').onclick = () => { saveSession(null); state.works = []; state.sites = []; show(false); };
+  $('#logout').onclick = () => { saveSession(null); state.works = []; state.sites = []; state.feed = []; show(false); };
 
   // вкладки
   function tab(name) {
-    ['works', 'sites', 'reel'].forEach(n => { $('#tab-' + n).setAttribute('aria-selected', String(n === name)); $('#p-' + n).hidden = n !== name; });
+    ['works', 'sites', 'reel', 'feed'].forEach(n => { $('#tab-' + n).setAttribute('aria-selected', String(n === name)); $('#p-' + n).hidden = n !== name; });
   }
-  $('#tab-works').onclick = () => tab('works'); $('#tab-sites').onclick = () => tab('sites'); $('#tab-reel').onclick = () => { tab('reel'); reelCheck(); };
+  $('#tab-works').onclick = () => tab('works'); $('#tab-sites').onclick = () => tab('sites'); $('#tab-feed').onclick = () => tab('feed'); $('#tab-reel').onclick = () => { tab('reel'); reelCheck(); };
 
   // список
   async function loadList(table) {
     try { state[table] = await api(`/rest/v1/${table}?select=*&order=sort.asc,created_at.desc`); renderList(table); }
-    catch (e) { const el = $(table === 'works' ? '#w-list' : '#s-list'); el.innerHTML = `<li class="empty err">${esc(e.message)}</li>`; }
+    catch (e) { const el = $(LIST[table][0]); el.innerHTML = `<li class="empty err">${esc(table === 'feed' && /feed|relation|schema cache|404/i.test(e.message) ? 'Таблицы ленты ещё нет: выполните feed.sql в Supabase (SQL Editor) и обновите страницу.' : e.message)}</li>`; }
   }
   const thumbOf = (table, r) => {
+    if (table === 'feed') { const u = r.media_type === 'video' ? r.poster_url : r.file_url; return u ? `<img src="${esc(u)}" alt="">` : (r.kind === 'ours' ? '<span style="color:#e3141f">наш</span>' : 'серый'); }
     const u = table === 'sites' ? r.shot_url : (r.type === 'video' ? r.poster_url : r.type === 'carousel' ? (r.slides || [])[0] : r.file_url);
     return u ? `<img src="${esc(u)}" alt="">` : (table === 'works' ? esc(TYPE_RU[r.type] || '') : 'сайт');
   };
   function renderList(table) {
-    const el = $(table === 'works' ? '#w-list' : '#s-list'), rows = state[table];
+    const el = $(LIST[table][0]), rows = state[table];
     if (!rows.length) { el.innerHTML = '<li class="empty">Пока пусто. Добавьте первую запись выше.</li>'; return; }
     el.innerHTML = rows.map((r, i) => `<li class="item ${r.published ? '' : 'off'}" data-id="${esc(r.id)}">
       <div class="th">${thumbOf(table, r)}</div>
-      <div class="meta"><b>${esc(r.title)}</b><span>${table === 'works' ? esc(TYPE_RU[r.type]) + (r.type === 'carousel' ? ', слайдов: ' + (r.slides || []).length : '') : esc(r.url || 'без ссылки')}${r.published ? '' : ' · скрыто'}</span></div>
+      <div class="meta"><b>${esc(table === 'feed' ? (r.label_ru || r.label_en || 'без подписи') : r.title)}</b><span>${table === 'feed' ? (r.kind === 'ours' ? 'Наш кадр (ловить)' : 'Обычный ролик') + ' · ' + (r.media_type === 'video' ? 'видео' : r.media_type === 'image' ? 'картинка' : 'без файла') : table === 'works' ? esc(TYPE_RU[r.type]) + (r.type === 'carousel' ? ', слайдов: ' + (r.slides || []).length : '') : esc(r.url || 'без ссылки')}${r.published ? '' : ' · скрыто'}</span></div>
       <div class="acts">
         <button class="btn ghost sm" type="button" data-a="up" aria-label="Поднять выше" ${i === 0 ? 'disabled' : ''}>↑</button>
         <button class="btn ghost sm" type="button" data-a="down" aria-label="Опустить ниже" ${i === rows.length - 1 ? 'disabled' : ''}>↓</button>
@@ -155,7 +157,7 @@
       } catch (e) { statusEl.className = 'status err'; statusEl.textContent = e.message; await loadList(table); }
     });
   }
-  wireList('works', $('#w-list'), $('#w-status')); wireList('sites', $('#s-list'), $('#s-status'));
+  wireList('works', $('#w-list'), $('#w-status')); wireList('sites', $('#s-list'), $('#s-status')); wireList('feed', $('#f-list'), $('#f-status'));
   const nextTopSort = table => state[table].length ? Math.min(...state[table].map(r => r.sort)) - 1 : 0;
 
   // форма работ
@@ -260,6 +262,36 @@
     try { await removeFiles([REEL_V, REEL_P]); st.textContent = 'Шоурил убран, на сайте снова заглушка.'; await reelCheck(); }
     catch (e) { st.className = 'status err'; st.textContent = e.message; }
   };
+
+
+  // лента в телефоне
+  $('#ff').addEventListener('submit', async ev => {
+    ev.preventDefault(); const st = $('#f-status'), btn = $('#f-btn'), f = $('#f-file').files[0]; st.className = 'status';
+    const row = { kind: $('#f-kind').value, label_ru: $('#f-ru').value.trim(), label_en: $('#f-en').value.trim(), sort: nextTopSort('feed'), published: true, paths: [] };
+    if (!f && !row.label_ru && !row.label_en) { st.className = 'status err'; st.textContent = 'Добавьте файл или подпись.'; return; }
+    if (f && f.size > 50 * 1024 * 1024) { st.className = 'status err'; st.textContent = 'Файл больше 50 МБ. Сожмите его.'; return; }
+    btn.disabled = true; const paths = [];
+    try {
+      if (f) {
+        const folder = `feed/${rid()}`;
+        if (/^video\//.test(f.type)) {
+          st.textContent = 'Читаем видео…'; const info = await videoInfo(f);
+          st.textContent = 'Загружаем видео…'; const vp = `${folder}/video.${extOf(f)}`; await upload(vp, f); paths.push(vp);
+          row.media_type = 'video'; row.file_url = pub(vp);
+          if (info.frame) { const pp = `${folder}/poster.webp`; await upload(pp, info.frame); paths.push(pp); row.poster_url = pub(pp); }
+        } else {
+          st.textContent = 'Загружаем картинку…'; const im = await prepImage(f), ip = `${folder}/image.webp`;
+          await upload(ip, im.blob); paths.push(ip); row.media_type = 'image'; row.file_url = pub(ip);
+        }
+      }
+      row.paths = paths; st.textContent = 'Сохраняем…';
+      await api('/rest/v1/feed', { method: 'POST', headers: J, body: JSON.stringify(row) });
+      $('#ff').reset(); st.textContent = 'Готово: уже в телефоне на сайте.'; await loadList('feed');
+    } catch (e) {
+      try { await removeFiles(paths); } catch { /* не критично */ }
+      st.className = 'status err'; st.textContent = /feed|relation|schema cache/i.test(e.message) ? 'Сначала выполните feed.sql в Supabase (SQL Editor).' : 'Не получилось: ' + e.message;
+    } finally { btn.disabled = false; }
+  });
 
   setupType(); boot();
 })();

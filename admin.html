@@ -40,6 +40,7 @@
       <button type="button" role="tab" id="tab-works" aria-selected="true" aria-controls="p-works">Работы</button>
       <button type="button" role="tab" id="tab-sites" aria-selected="false" aria-controls="p-sites">Сайты</button>
       <button type="button" role="tab" id="tab-reel" aria-selected="false" aria-controls="p-reel">Шоурил</button>
+      <button type="button" role="tab" id="tab-feed" aria-selected="false" aria-controls="p-feed">Лента в телефоне</button>
     </div>
 
     <div id="p-works" role="tabpanel" aria-labelledby="tab-works">
@@ -95,6 +96,28 @@
         <p class="status" id="r-status" role="status" aria-live="polite"></p>
       </form>
       <div id="r-cur"></div>
+    </div>
+    <div id="p-feed" role="tabpanel" aria-labelledby="tab-feed" hidden>
+      <form class="card" id="ff">
+        <h2>Добавить в ленту</h2>
+        <p class="status note">Это телефон в игре «Остановите ленту» под главным экраном. «Наш кадр» — тот, который нужно поймать: на сайте он в красной рамке. Обычные ролики — всё остальное, что пролистывается. Лучше вертикальные файлы 9:16. Если ничего не добавлено, на сайте показываются серые карточки с подписями.</p>
+        <div class="row2">
+          <div class="field"><label for="f-kind">Что это</label>
+            <select id="f-kind">
+              <option value="other">Обычный ролик (пролистывают)</option>
+              <option value="ours">Наш кадр (его надо поймать)</option>
+            </select></div>
+          <div class="field"><label for="f-file">Картинка или видео (необязательно)</label><input id="f-file" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label for="f-ru">Подпись (RU)</label><input id="f-ru" type="text" maxlength="60" placeholder="Котик №4812"></div>
+          <div class="field"><label for="f-en">Подпись (EN, необязательно)</label><input id="f-en" type="text" maxlength="60" placeholder="Cat no. 4812"></div>
+        </div>
+        <button class="btn" type="submit" id="f-btn">Добавить</button>
+        <p class="status" id="f-status" role="status" aria-live="polite"></p>
+      </form>
+      <h2 class="mt-lg">Сейчас в ленте</h2>
+      <ul class="items" id="f-list"></ul>
     </div>
   </section>
 </main>
