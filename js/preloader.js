@@ -28,7 +28,7 @@
   const fontsDone = () => window.PRE.done('fonts');
   if (document.fonts && document.fonts.load) {
     Promise.all([
-      document.fonts.load('800 1em Unbounded', 'ИИ AI'),
+      document.fonts.load('800 1em Onest', 'ИИ AI'),
       document.fonts.load('400 1em Onest', 'Аа Aa')
     ].map(p => p.catch(() => null))).then(fontsDone);
     setTimeout(fontsDone, 1500);    // шрифт не пришёл: показываем сайт с запасным

@@ -1,7 +1,7 @@
 // Скачивает шрифты (лицензия OFL) в папку fonts/. Запуск: node scripts/get-fonts.mjs
 import { mkdir, writeFile } from 'node:fs/promises';
 
-const FONTS = ['unbounded', 'onest', 'jetbrains-mono'];
+const FONTS = ['onest', 'jetbrains-mono'];
 const SUBSETS = ['cyrillic', 'latin'];
 const out = new URL('../fonts/', import.meta.url);
 await mkdir(out, { recursive: true });

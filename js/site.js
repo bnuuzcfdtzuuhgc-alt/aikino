@@ -261,6 +261,7 @@
         const info = document.createElement('div'); info.className = 'sk-info';
         const num = document.createElement('span'); num.className = 'sk-n mono'; num.textContent = `${pad2(k + 1)} / ${pad2(rows.length)}`;
         const ttl = document.createElement('span'); ttl.className = 'sk-title'; ttl.textContent = x.title;
+        const words = String(x.title || '').split(/\s+/); ttl.style.setProperty('--lw', Math.max(4, ...words.map(w2 => w2.length))); ttl.style.setProperty('--tl', Math.max(10, String(x.title || '').length));
         info.append(num, ttl);
         if (x.description) { const d = document.createElement('span'); d.className = 'sk-desc'; d.textContent = x.description; info.appendChild(d); }
         const foot = document.createElement('span'); foot.className = 'sk-foot mono';

@@ -17,7 +17,7 @@
 
 ## Перед деплоем
 
-1. Шрифты: `node scripts/get-fonts.mjs` (нужен Node 18+). Появятся 6 файлов в `fonts/` (Unbounded, Onest, JetBrains Mono); закоммитьте их.
+1. Шрифты: `node scripts/get-fonts.mjs` (нужен Node 18+). Появятся 4 файла в `fonts/` (Onest — заголовки и текст, JetBrains Mono — мелкие подписи); закоммитьте их.
 2. Vercel → Settings → Environment Variables: `GROQ_API_KEY` (обязательно), `GROQ_MODEL`, `GROQ_MAX_TOKENS` (по желанию). Затем Redeploy. Без ключа чат отвечает по FAQ.
 3. Если сменится адрес Supabase, поправьте его в `config.js` и в CSP (`vercel.json`).
 
