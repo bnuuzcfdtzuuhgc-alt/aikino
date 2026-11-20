@@ -130,6 +130,116 @@
     } catch { /* остаются заглушки */ }
   }
 
+  // лёд поверх скриншота сайта: удары мышкой оставляют трещины, на третьем лёд разлетается осколками
+  const ICE_HITS = 3;
+  let actx = null;
+  const crackSound = big => {
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      const d = big ? 0.55 : 0.13, len = Math.floor(actx.sampleRate * d), b = actx.createBuffer(1, len, actx.sampleRate), ch = b.getChannelData(0);
+      for (let i = 0; i < len; i++) { const q = i / len; ch[i] = (Math.random() * 2 - 1) * Math.pow(1 - q, big ? 2.4 : 7) * (big && Math.random() < 0.003 ? 4 : 1); }
+      const src = actx.createBufferSource(), f = actx.createBiquadFilter(), g = actx.createGain();
+      src.buffer = b; f.type = 'highpass'; f.frequency.value = big ? 1600 : 2400; g.gain.value = big ? 0.3 : 0.22;
+      src.connect(f).connect(g).connect(actx.destination); src.start();
+    } catch { /* без звука */ }
+  };
+  function makeIce(shot, card) {
+    const ice = document.createElement('div'); ice.className = 'ice';
+    const cv = document.createElement('canvas'); cv.className = 'ice-c';
+    const hint = document.createElement('span'); hint.className = 'ice-hint mono';
+    hint.innerHTML = `<span data-i18n="sites.ice">${t('sites.ice')}</span><b>${'<i></i>'.repeat(ICE_HITS)}</b>`;
+    shot.append(ice, cv, hint); shot.classList.add('iced');
+    const ctx = cv.getContext('2d');
+    let W = 1, H = 1, hits = 0, done = false;
+    const cracks = [];   // ломаные в долях ширины и высоты, чтобы переживать изменение размера
+    const dots = Array.from({ length: 220 }, () => [Math.random(), Math.random(), Math.random()]);
+    function paint() {
+      if (done) return;
+      ctx.clearRect(0, 0, W, H);
+      // иней: мелкие штрихи и белёсые края
+      dots.forEach(([x, y, k]) => { ctx.strokeStyle = `rgba(255,255,255,${0.06 + k * 0.16})`; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x * W, y * H); ctx.lineTo(x * W + (k - 0.5) * 14, y * H + (0.5 - k) * 9); ctx.stroke(); });
+      const g = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.3, W / 2, H / 2, Math.max(W, H) * 0.75);
+      g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(1, 'rgba(255,255,255,.38)');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      // трещины: тёмная тень и светлый скол поверх
+      cracks.forEach(l => {
+        [[`rgba(10,40,60,.28)`, 2.4, 0.8], ['rgba(255,255,255,.95)', 1, 0]].forEach(([c, w, o]) => {
+          ctx.strokeStyle = c; ctx.lineWidth = w * l.w; ctx.beginPath();
+          l.p.forEach(([x, y], i) => (i ? ctx.lineTo : ctx.moveTo).call(ctx, x * W + o, y * H + o)); ctx.stroke();
+        });
+      });
+    }
+    const size = () => {
+      const r = shot.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = Math.max(1, r.width); H = Math.max(1, r.height);
+      cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); paint();
+    };
+    if ('ResizeObserver' in window) new ResizeObserver(size).observe(shot); else size();
+    function crack(x, y) {
+      const n = 6 + Math.floor(Math.random() * 5), D = Math.max(W, H), ends = [];
+      for (let i = 0; i < n; i++) {
+        let a = (i / n) * Math.PI * 2 + Math.random() * 0.5, px = x, py = y;
+        const pts = [[px / W, py / H]], len = D * (0.18 + Math.random() * 0.3) * (0.7 + hits * 0.3);
+        for (let d = 0; d < len;) {
+          const st = 10 + Math.random() * 26; d += st; a += (Math.random() - 0.5) * 0.6;
+          px += Math.cos(a) * st; py += Math.sin(a) * st; pts.push([px / W, py / H]);
+          if (Math.random() < 0.12) { // ответвление
+            let ba = a + (Math.random() < 0.5 ? -1 : 1) * (0.5 + Math.random() * 0.6), bx = px, by = py; const bp = [[bx / W, by / H]];
+            for (let k = 0; k < 3; k++) { bx += Math.cos(ba) * 14; by += Math.sin(ba) * 14; ba += (Math.random() - 0.5) * 0.5; bp.push([bx / W, by / H]); }
+            cracks.push({ p: bp, w: 0.7 });
+          }
+        }
+        cracks.push({ p: pts, w: 1.2 }); ends.push(pts);
+      }
+      // кольцевые трещины между лучами, начиная со второго удара
+      if (hits > 0) for (let i = 0; i < ends.length; i++) {
+        const A = ends[i], B = ends[(i + 1) % ends.length], k = Math.min(A.length, B.length) - 1, m = Math.max(1, Math.floor(k * (0.3 + Math.random() * 0.3)));
+        cracks.push({ p: [A[m], [(A[m][0] + B[m][0]) / 2 + (Math.random() - 0.5) * 0.02, (A[m][1] + B[m][1]) / 2 + (Math.random() - 0.5) * 0.02], B[m]], w: 0.8 });
+      }
+      paint();
+    }
+    function shatter(x, y) {
+      done = true; shot.classList.add('broken');
+      const K = 11 + Math.floor(Math.random() * 4), angs = Array.from({ length: K }, (_, i) => (i + Math.random() * 0.7) / K * Math.PI * 2);
+      const D = Math.hypot(W, H), rings = [0, 0.1, 0.24, 0.42, 0.7, 1.6].map((r, i) => i ? r * D * (0.85 + Math.random() * 0.3) : 0);
+      const P = (a, r) => [x + Math.cos(a) * r, y + Math.sin(a) * r], shards = [];
+      for (let i = 0; i < K; i++) for (let j = 0; j < rings.length - 1; j++) {
+        const a0 = angs[i], a1 = angs[(i + 1) % K] + (i === K - 1 ? Math.PI * 2 : 0);
+        const pts = j ? [P(a0, rings[j]), P(a1, rings[j]), P(a1, rings[j + 1]), P(a0, rings[j + 1])] : [[x, y], P(a1, rings[1]), P(a0, rings[1])];
+        const cx = pts.reduce((s2, p) => s2 + p[0], 0) / pts.length, cy = pts.reduce((s2, p) => s2 + p[1], 0) / pts.length;
+        const dx = cx - x, dy = cy - y, l = Math.hypot(dx, dy) || 1, sp = (260 + Math.random() * 380) / (1 + j * 0.35);
+        shards.push({ pts: pts.map(p => [p[0] - cx, p[1] - cy]), x: cx, y: cy, vx: dx / l * sp, vy: dy / l * sp - 160, r: 0, vr: (Math.random() - 0.5) * 7, d: j * 0.025 });
+      }
+      const t0 = performance.now(), T = 1.3;
+      const anim = now => {
+        const tt = (now - t0) / 1000; ctx.clearRect(0, 0, W, H);
+        shards.forEach(sh => {
+          const q = Math.max(0, tt - sh.d), al = Math.max(0, 1 - Math.max(0, q - T * 0.45) / (T * 0.55));
+          if (al <= 0) return;
+          ctx.save(); ctx.translate(sh.x + sh.vx * q, sh.y + sh.vy * q + 900 * q * q); ctx.rotate(sh.vr * q);
+          ctx.beginPath(); sh.pts.forEach(([px, py], i) => (i ? ctx.lineTo : ctx.moveTo).call(ctx, px, py)); ctx.closePath();
+          ctx.fillStyle = `rgba(214,233,243,${0.55 * al})`; ctx.fill();
+          ctx.strokeStyle = `rgba(255,255,255,${0.9 * al})`; ctx.lineWidth = 1.2; ctx.stroke();
+          ctx.restore();
+        });
+        if (tt < T + 0.4) requestAnimationFrame(anim);
+        else { cv.remove(); ice.remove(); hint.remove(); shot.classList.remove('iced', 'broken'); }
+      };
+      requestAnimationFrame(anim);
+    }
+    card.addEventListener('click', e => {
+      if (!shot.classList.contains('iced') || done) { if (done && shot.classList.contains('iced')) e.preventDefault(); return; }
+      e.preventDefault();
+      const r = shot.getBoundingClientRect();
+      let x = e.clientX - r.left, y = e.clientY - r.top;
+      if (!e.clientX || x < 0 || y < 0 || x > W || y > H) { x = W * (0.3 + Math.random() * 0.4); y = H * (0.3 + Math.random() * 0.4); }
+      shot.classList.remove('hit'); void shot.offsetWidth; shot.classList.add('hit');
+      hint.querySelectorAll('i')[hits] && hint.querySelectorAll('i')[hits].classList.add('on');
+      if (hits + 1 >= ICE_HITS) { hits++; crackSound(true); shatter(x, y); }
+      else { crack(x, y); hits++; crackSound(false); }
+    });
+  }
+
   // сайты из Supabase: секция появляется, когда есть хотя бы один
   async function loadSites() {
     if (!SB || !SK) return;
@@ -163,6 +273,7 @@
           // длинный скриншот листается при наведении: скорость одинаковая для любой длины
           im.addEventListener('load', () => { const k2 = im.naturalHeight / Math.max(1, im.naturalWidth); shot.style.setProperty('--dur', Math.min(14, Math.max(2.5, k2 * 2.6)).toFixed(1) + 's'); if (k2 > 0.9) shot.classList.add('long'); });
           shot.appendChild(im);
+          makeIce(shot, a);
         } else { const em = document.createElement('span'); em.className = 'sk-empty'; em.textContent = host || x.title; shot.appendChild(em); }
         a.append(info, shot); li.appendChild(a); list.appendChild(li);
       });
@@ -186,7 +297,10 @@
         let cx = 0, cy = 0, tx = 0, ty = 0, on = false, cr = 0;
         const loop = () => { cx += (tx - cx) * .22; cy += (ty - cy) * .22; cur.style.transform = `translate(${cx}px,${cy}px)`; cr = on || Math.abs(tx - cx) + Math.abs(ty - cy) > .5 ? requestAnimationFrame(loop) : 0; };
         list.addEventListener('pointermove', e => {
-          const c = e.target.closest('a.sk-card'); tx = e.clientX; ty = e.clientY;
+          const card = e.target.closest('.sk-card'), iced = !!(card && card.querySelector('.sk-shot.iced'));
+          const c = card && (iced || card.tagName === 'A'); tx = e.clientX; ty = e.clientY;
+          const txt = t(iced ? 'sites.hit' : 'sites.cur'); if (cur.textContent !== txt) cur.textContent = txt;
+          cur.classList.toggle('hit', iced);
           if (!!c !== on) { on = !!c; cur.classList.toggle('on', on); if (on && !cr) { cx = tx; cy = ty; } }
           if (!cr) cr = requestAnimationFrame(loop);
         });
