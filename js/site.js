@@ -138,32 +138,60 @@
       const rows = r.ok ? await r.json() : [];
       if (!Array.isArray(rows) || !rows.length) return;
       const list = $('#sites-list');
-      rows.forEach(x => {
+      // стопка карточек: каждая следующая наезжает на предыдущую и прижимает её
+      const pad2 = n => String(n).padStart(2, '0');
+      rows.forEach((x, k) => {
         let href = '';
         try { const u = new URL(x.url); if (/^https?:$/.test(u.protocol)) href = u.href; } catch { /* не критично */ }
-        const li = document.createElement('li');
+        let host = x.url || ''; try { host = new URL(x.url).host.replace(/^www\./, ''); } catch { /* не критично */ }
+        const li = document.createElement('li'); li.className = 'sk sk-' + 'abc'[k % 3]; li.style.setProperty('--i', k);
         const a = document.createElement(href ? 'a' : 'div');
-        a.className = 'site';
+        a.className = 'sk-card';
         if (href) { a.href = href; a.target = '_blank'; a.rel = 'noopener noreferrer'; }
-        let host = x.url || ''; try { host = new URL(x.url).host; } catch { /* не критично */ }
-        const lap = document.createElement('div'); lap.className = 'laptop';
-        const lid = document.createElement('div'); lid.className = 'lp-lid';
-        const scr = document.createElement('div'); scr.className = 'lp-screen';
-        const bar = document.createElement('div'); bar.className = 'lp-bar';
-        bar.innerHTML = '<i></i><i></i><i></i>'; const hs = document.createElement('span'); hs.textContent = host; bar.appendChild(hs);
-        scr.appendChild(bar);
-        if (x.shot_url) { const im = document.createElement('img'); im.src = x.shot_url; im.alt = x.title; im.loading = 'lazy'; scr.appendChild(im); }
-        else { const em = document.createElement('div'); em.className = 'lp-empty'; em.textContent = host; scr.appendChild(em); }
-        lid.appendChild(scr);
-        const base = document.createElement('div'); base.className = 'lp-base';
-        lap.append(lid, base);
-        const body = document.createElement('div'); body.className = 'site-body';
-        const ttl = document.createElement('span'); ttl.className = 'site-title'; ttl.textContent = x.title;
-        body.appendChild(ttl);
-        if (x.description) { const d = document.createElement('span'); d.className = 'site-desc'; d.textContent = x.description; body.appendChild(d); }
-        if (href) { const g = document.createElement('span'); g.className = 'site-go'; g.dataset.i18n = 'sites.open'; g.textContent = t('sites.open'); body.appendChild(g); }
-        a.append(lap, body); li.appendChild(a); list.appendChild(li);
+        const info = document.createElement('div'); info.className = 'sk-info';
+        const num = document.createElement('span'); num.className = 'sk-n mono'; num.textContent = `${pad2(k + 1)} / ${pad2(rows.length)}`;
+        const ttl = document.createElement('span'); ttl.className = 'sk-title'; ttl.textContent = x.title;
+        info.append(num, ttl);
+        if (x.description) { const d = document.createElement('span'); d.className = 'sk-desc'; d.textContent = x.description; info.appendChild(d); }
+        const foot = document.createElement('span'); foot.className = 'sk-foot mono';
+        const hs = document.createElement('span'); hs.textContent = host; foot.appendChild(hs);
+        if (href) { const g = document.createElement('span'); g.className = 'sk-go'; g.dataset.i18n = 'sites.open'; g.textContent = t('sites.open'); foot.appendChild(g); }
+        info.appendChild(foot);
+        const shot = document.createElement('div'); shot.className = 'sk-shot';
+        if (x.shot_url) {
+          const im = document.createElement('img'); im.src = x.shot_url; im.alt = x.title; im.loading = 'lazy'; im.decoding = 'async';
+          // длинный скриншот листается при наведении: скорость одинаковая для любой длины
+          im.addEventListener('load', () => { const k2 = im.naturalHeight / Math.max(1, im.naturalWidth); shot.style.setProperty('--dur', Math.min(14, Math.max(2.5, k2 * 2.6)).toFixed(1) + 's'); if (k2 > 0.9) shot.classList.add('long'); });
+          shot.appendChild(im);
+        } else { const em = document.createElement('span'); em.className = 'sk-empty'; em.textContent = host || x.title; shot.appendChild(em); }
+        a.append(info, shot); li.appendChild(a); list.appendChild(li);
       });
+      // карточка, на которую наезжает следующая, уменьшается и темнеет
+      const cards = [...list.children];
+      let skRaf = 0;
+      const skUpd = () => {
+        skRaf = 0;
+        cards.forEach((li, k) => {
+          const nx = cards[k + 1]; if (!nx) return;
+          const a = li.getBoundingClientRect(), b = nx.getBoundingClientRect();
+          const p = Math.min(1, Math.max(0, 1 - (b.top - a.top) / Math.max(1, a.height)));
+          li.style.setProperty('--p', p.toFixed(3));
+        });
+      };
+      addEventListener('scroll', () => { if (!skRaf) skRaf = requestAnimationFrame(skUpd); }, { passive: true });
+      addEventListener('resize', skUpd); skUpd();
+      // красный круг «Открыть ↗» вместо курсора над карточкой со ссылкой
+      const cur = $('#sk-cur');
+      if (cur && matchMedia('(hover: hover) and (pointer: fine)').matches) {
+        let cx = 0, cy = 0, tx = 0, ty = 0, on = false, cr = 0;
+        const loop = () => { cx += (tx - cx) * .22; cy += (ty - cy) * .22; cur.style.transform = `translate(${cx}px,${cy}px)`; cr = on || Math.abs(tx - cx) + Math.abs(ty - cy) > .5 ? requestAnimationFrame(loop) : 0; };
+        list.addEventListener('pointermove', e => {
+          const c = e.target.closest('a.sk-card'); tx = e.clientX; ty = e.clientY;
+          if (!!c !== on) { on = !!c; cur.classList.toggle('on', on); if (on && !cr) { cx = tx; cy = ty; } }
+          if (!cr) cr = requestAnimationFrame(loop);
+        });
+        list.addEventListener('pointerleave', () => { on = false; cur.classList.remove('on'); });
+      }
       $('#sites').hidden = false;
       document.querySelectorAll('[data-sites]').forEach(e => { e.hidden = false; });
     } catch { /* секция остаётся скрытой */ }
