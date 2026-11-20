@@ -124,6 +124,14 @@ html.lock,html.pre-lock{overflow:hidden}
 .hero{position:relative;isolation:isolate;display:flex;flex-direction:column;min-height:calc(100svh - var(--hdr));overflow:clip}
 .hero-gl{position:absolute;top:0;left:0;z-index:1;width:100%;height:calc(100% - var(--sh,0px));pointer-events:none;opacity:0;transition:opacity 1.4s .25s;--gx:.2;--gy:.42;--gs:.8}
 .gl-on.go .hero-gl{opacity:1}
+/* компьютер: кубики. Положение и размер шара — --cx, --cy, --cs */
+.hero-gl{--cx:.52;--cy:.16;--cs:.6}
+.hero.cubes-hover{cursor:grab}
+.hero.cubes-drag,.hero.cubes-drag *{cursor:grabbing!important;user-select:none}
+.cubes-hint{margin-left:auto;color:var(--red-ink)}
+.cubes-hint::before{content:"";display:inline-block;width:7px;height:7px;margin-right:9px;background:var(--red);vertical-align:1px}
+.cubes-hint.used{opacity:0;transition:opacity .6s}
+@media (min-width:1300px){.hero-gl{--cx:.5;--cy:.15;--cs:.64}}
 .hero-fb{display:none;position:absolute;z-index:1;pointer-events:none;top:4%;right:4%;width:min(60vw,360px)}
 .hero-fb svg{display:block;width:100%;height:auto}
 .hero-fb .fb-head,.hero-fb .fb-neck{fill:var(--paper-2);stroke:var(--muted);stroke-width:2}
