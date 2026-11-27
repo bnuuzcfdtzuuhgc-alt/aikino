@@ -120,8 +120,8 @@ html.lock,html.pre-lock{overflow:hidden}
 .btn.big{min-height:clamp(72px,8.4vw,116px);padding:0 clamp(22px,3vw,44px);font-family:var(--font-display);font-weight:800;font-size:clamp(1.05rem,2.3vw,2rem);letter-spacing:-.02em;text-transform:uppercase}
 
 /* ---------- главный экран: боль → решение ---------- */
-.hero{position:relative;isolation:isolate;display:flex;flex-direction:column;min-height:100svh;padding-top:var(--hdr);overflow:clip}
-.hero-gl{position:absolute;top:0;left:0;z-index:1;width:100%;height:calc(var(--hdr) + 36svh);pointer-events:none;opacity:0;transition:opacity 1.4s .25s;--gx:.02;--gy:-.14;--gs:1}
+.hero{position:relative;isolation:isolate;display:flex;flex-direction:column;min-height:100vh;min-height:100svh;padding-top:var(--hdr);overflow:clip}
+.hero-gl{position:absolute;top:0;left:0;z-index:1;width:100%;height:calc(var(--hdr) + 36vh);height:calc(var(--hdr) + 36svh);pointer-events:none;opacity:0;transition:opacity 1.4s .25s;--gx:.02;--gy:-.14;--gs:1}
 .gl-on.go .hero-gl{opacity:1}
 .hero.cubes-hover{cursor:grab}
 .hero.cubes-drag,.hero.cubes-drag *{cursor:grabbing!important;user-select:none}
@@ -136,7 +136,7 @@ html.lock,html.pre-lock{overflow:hidden}
 .hero-fb .fb-line{stroke:var(--muted);stroke-width:2;stroke-linecap:round}
 .no-3d .hero-fb{display:block}
 .no-3d .hero-gl{display:none}
-.hero-in{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;justify-content:flex-end;gap:clamp(36px,6vh,72px);width:100%;padding-top:36svh;padding-bottom:clamp(22px,4vh,44px);pointer-events:none}
+.hero-in{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;justify-content:flex-end;gap:clamp(36px,6vh,72px);width:100%;padding-top:36vh;padding-top:36svh;padding-bottom:clamp(22px,4vh,44px);pointer-events:none}
 .hero-in a,.hero-in button{pointer-events:auto}
 .hero-txt{display:grid;gap:clamp(16px,2.4vh,26px);max-width:760px}
 .hero-k{color:var(--muted);font-size:.68rem}
@@ -165,7 +165,7 @@ html.lock,html.pre-lock{overflow:hidden}
 .ba-now{font-weight:600;font-size:1.02rem;line-height:1.25}
 .ba-now::before{content:"→ ";color:var(--red)}
 @media (min-width:560px){.cta-row{display:flex;flex-wrap:wrap}}
-@media (max-width:767px) and (max-height:700px){.hero-gl{height:calc(var(--hdr) + 30svh)}.hero-in{padding-top:31svh}}
+@media (max-width:767px) and (max-height:700px){.hero-gl{height:calc(var(--hdr) + 30vh);height:calc(var(--hdr) + 30svh)}.hero-in{padding-top:31vh;padding-top:31svh}}
 @media (min-width:768px){
   .hero-gl{height:100%;--gx:.55;--gy:.12;--gs:.9}
   .hero-in{padding-top:clamp(40px,8vh,96px);justify-content:space-between}
@@ -227,7 +227,7 @@ html.lock,html.pre-lock{overflow:hidden}
 .stop-cta{margin-top:20px}
 .stop-cta:not([hidden]){animation:lbup .6s var(--ease) both}
 .stop-stage{display:grid;justify-items:center;gap:clamp(18px,2.4vw,28px);perspective:1100px}
-.phone{--rx:0deg;--ry:0deg;position:relative;width:min(290px,70vw,calc(56svh / 2.07));aspect-ratio:9/18.6;padding:9px;border-radius:44px;background:#111;cursor:pointer;transform:rotateX(var(--rx)) rotateY(var(--ry));transition:transform .6s var(--ease);-webkit-tap-highlight-color:transparent}
+.phone{--rx:0deg;--ry:0deg;position:relative;width:min(290px,70vw,calc(56vh / 2.07));width:min(290px,70vw,calc(56svh / 2.07));aspect-ratio:9/18.6;padding:9px;border-radius:44px;background:#111;cursor:pointer;transform:rotateX(var(--rx)) rotateY(var(--ry));transition:transform .6s var(--ease);-webkit-tap-highlight-color:transparent}
 :root[data-theme="dark"] .phone{background:#2b2b2b}
 .phone::before{content:"";position:absolute;top:18px;left:50%;z-index:5;width:76px;height:20px;margin-left:-38px;border-radius:20px;background:#111}
 .ph-scr{position:relative;height:100%;border-radius:36px;overflow:hidden;background:#000;isolation:isolate}
@@ -270,7 +270,10 @@ html.lock,html.pre-lock{overflow:hidden}
   /* телефон: заголовок, затем сама игра, счёт под ней */
   .stop-in{display:flex;flex-direction:column;align-items:stretch;gap:0}
   .stop-txt{display:contents}
-  .stop-stage{order:4;margin-top:32px}
+  .stop-lead{margin-top:14px}
+  .stop-stage{order:4;margin-top:28px}
+  .phone{width:min(250px,62vw,calc(50vh / 2.07));width:min(250px,62vw,calc(50svh / 2.07));border-radius:38px}
+  .ph-scr{border-radius:30px}
   .stop-stats{order:5;justify-content:center;margin-top:28px}
   .stop-msg{order:6;text-align:center}
   .stop-cta{order:7;align-self:center}
@@ -337,10 +340,10 @@ h2[data-rv]>span{display:block}
 .filters .n{margin-left:5px;font-size:.6rem;color:var(--red-ink);vertical-align:super}
 /* телефон: вертикальная подача, кадры разной ширины и с разных сторон */
 .works{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:clamp(40px,11vw,64px)}
-.works li{width:min(100%,calc(64svh * var(--rn,.8)))}
+.works li{width:min(100%,calc(64vh * var(--rn,.8)));width:min(100%,calc(64svh * var(--rn,.8)))}
 .works li:nth-child(even){align-self:flex-end}
-.works li:nth-child(3n){width:min(80%,calc(52svh * var(--rn,.8)))}
-.works li:nth-child(4n+1){width:min(100%,calc(72svh * var(--rn,.8)))}
+.works li:nth-child(3n){width:min(80%,calc(52vh * var(--rn,.8)));width:min(80%,calc(52svh * var(--rn,.8)))}
+.works li:nth-child(4n+1){width:min(100%,calc(72vh * var(--rn,.8)));width:min(100%,calc(72svh * var(--rn,.8)))}
 .work{display:block;width:100%;padding:0;margin:0;background:none;border:0;text-align:left;cursor:pointer}
 .frame{position:relative;display:block;width:100%;aspect-ratio:var(--rn,.8);overflow:hidden;background:var(--paper-2)}
 .frame img,.frame .ph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease)}
@@ -360,6 +363,21 @@ h2[data-rv]>span{display:block}
 .rv .works li.in .frame>*,.rv-all .works li .frame>*{transform:none}
 .rv .works li.in .work:hover .frame>*{transform:scale(1.045)}
 .rv .works li.in .cap,.rv-all .works li .cap{opacity:1}
+.works-swipe{display:none;align-items:center;gap:10px;margin-top:14px;color:var(--muted);font-size:.64rem}
+/* телефон: работы — горизонтальная лента со свайпом и примагничиванием */
+@media (max-width:767px){
+  .works{flex-direction:row;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;margin-inline:calc(-1 * max(var(--gutter),env(safe-area-inset-left,0px)));padding:2px max(var(--gutter),env(safe-area-inset-left,0px)) 8px;scroll-padding-inline:max(var(--gutter),env(safe-area-inset-left,0px));scrollbar-width:none}
+  .works::-webkit-scrollbar{display:none}
+  .works li,.works li:nth-child(3n),.works li:nth-child(4n+1),.works li:nth-child(even){flex:none;align-self:flex-start;width:min(78vw,340px);scroll-snap-align:start}
+  .works .frame{aspect-ratio:4/5;border-radius:14px}
+  .rv .works li .frame{clip-path:none}.rv .works li .frame>*{transform:none}.rv .works li .cap{opacity:1}
+  .works-swipe{display:flex}
+  .filters{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:calc(-1 * max(var(--gutter),env(safe-area-inset-left,0px)));padding-inline:max(var(--gutter),env(safe-area-inset-left,0px))}
+  .filters::-webkit-scrollbar{display:none}
+  .filters button{flex:none}
+}
+.works-swipe i{position:relative;flex:1;height:2px;background:var(--line);border-radius:2px;overflow:hidden}
+.works-swipe i::after{content:"";position:absolute;inset:0;background:var(--red);transform-origin:0 50%;transform:scaleX(var(--ws,.2))}
 /* планшет и компьютер: горизонтальная лента, кадры разной высоты */
 @media (min-width:768px){
   .works{--rh:clamp(300px,56vh,520px);flex-direction:row;align-items:flex-start;gap:clamp(20px,3vw,52px);margin:0 calc(50% - 50vw);padding:4px var(--edge) 10px;overflow-x:auto;scrollbar-width:none;overscroll-behavior-x:contain;scroll-padding-inline:var(--edge);cursor:grab}
@@ -545,7 +563,7 @@ a.sx-row:focus-visible{outline:2px solid var(--red);outline-offset:4px}
 .chat-fab[aria-expanded="true"]{opacity:0;pointer-events:none}
 .chat-tip{position:fixed;right:calc(max(10px,env(safe-area-inset-right,0px)) + 40px);top:50%;z-index:31;max-width:min(240px,calc(100vw - 110px));padding:10px 14px;background:var(--paper);color:var(--ink);border:1px solid var(--ink);font-size:.88rem;line-height:1.3;font-weight:500;opacity:0;transform:translate(10px,-50%);pointer-events:none;transition:opacity .3s,transform .4s var(--ease)}
 .chat-tip.on{opacity:1;transform:translate(0,-50%);pointer-events:auto;cursor:pointer}
-.chat{position:fixed;top:0;right:0;z-index:40;width:min(440px,100vw);height:100dvh;display:flex;flex-direction:column;background:var(--paper);color:var(--ink);border-left:1px solid var(--ink);transform:translateX(100%);visibility:hidden;transition:transform .6s var(--ease-io),visibility 0s .6s}
+.chat{position:fixed;top:0;right:0;z-index:40;width:min(440px,100vw);height:100vh;height:100dvh;display:flex;flex-direction:column;background:var(--paper);color:var(--ink);border-left:1px solid var(--ink);transform:translateX(100%);visibility:hidden;transition:transform .6s var(--ease-io),visibility 0s .6s}
 .chat.open{transform:none;visibility:visible;transition-delay:0s}
 .chat-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:max(18px,env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) 18px 20px;border-bottom:1px solid var(--ink)}
 .chat-st{display:flex;align-items:center;gap:10px;margin-bottom:12px;color:var(--muted)}
@@ -582,10 +600,10 @@ html.menu-open .chat-fab,html.menu-open .chat-tip,html.menu-open .tgbar{display:
 /* плашка «Написать в ТГ»: только телефон, на компьютере кнопка есть в шапке */
 .tgbar{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;padding:0 max(12px,env(safe-area-inset-right,0px)) max(10px,env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px));pointer-events:none;transform:translateY(140%);transition:transform .5s var(--ease)}
 .tgbar.on{transform:none}
-.tgbar a{pointer-events:auto;display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:52px;padding:0 6px 0 16px;background:var(--ink);color:var(--on-dark);text-decoration:none}
+.tgbar a{pointer-events:auto;display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:56px;padding:0 6px 0 20px;border-radius:999px;box-shadow:0 18px 40px -18px rgba(0,0,0,.55);background:var(--ink);color:var(--on-dark);text-decoration:none}
 .tgbar .rec{color:var(--dim);font-size:.64rem}
 
-.tgbar .go{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;background:var(--red);color:var(--on-red);font-family:var(--font-mono);font-size:.68rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase}
+.tgbar .go{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:999px;background:var(--red);color:var(--on-red);font-family:var(--font-mono);font-size:.68rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase}
 @media (min-width:820px){.tgbar{display:none}}
 @media (max-width:819px){
   /* телефон: кнопки ИИ-консультанта нет, остаётся только плашка Telegram */
@@ -605,7 +623,7 @@ dialog{color:inherit}
 dialog:focus,dialog:focus-visible{outline:0}
 .ib{min-width:48px;min-height:48px;display:inline-grid;place-items:center;background:transparent;border:1px solid var(--ink);color:var(--ink);cursor:pointer;border-radius:0;font-family:var(--font-mono);font-size:.74rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase;padding:0 14px;transition:background .2s,color .2s}
 .ib:hover:not(:disabled){background:var(--ink);color:var(--paper)}
-#lb{border:0;padding:0;margin:0;width:100vw;max-width:none;height:100dvh;max-height:none;background:transparent;color:var(--ink);overflow:hidden}
+#lb{border:0;padding:0;margin:0;width:100vw;max-width:none;height:100vh;height:100dvh;max-height:none;background:transparent;color:var(--ink);overflow:hidden}
 #lb::backdrop{background:transparent}
 #lb::before{content:"";position:absolute;inset:0;background:var(--paper)}
 #lb.opening::before{animation:lbbg .5s both}
@@ -617,7 +635,7 @@ dialog:focus,dialog:focus-visible{outline:0}
 .lb-bar .ib::before{content:"✕";font-size:1.1rem}
 /* сцена — контейнер; кадр занимает максимум места при любом соотношении сторон */
 .lb-stage{container-type:size;display:grid;place-items:center;min-width:0;min-height:0;margin:clamp(12px,3vw,44px);touch-action:pan-y}
-.lbf{position:relative;aspect-ratio:var(--rn);width:min(100%,calc((100dvh - 250px) * var(--rn)));width:min(100cqw,calc(100cqh * var(--rn)));overflow:hidden;background:var(--paper-2)}
+.lbf{position:relative;aspect-ratio:var(--rn);width:min(100%,calc((100vh - 250px) * var(--rn)));width:min(100%,calc((100dvh - 250px) * var(--rn)));width:min(100cqw,calc(100cqh * var(--rn)));overflow:hidden;background:var(--paper-2)}
 .lbf img,.lbf video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
 .lbf video{background:#000}
 .lb-stage .lbf{animation:lbnext .65s var(--ease-io)}
@@ -658,7 +676,7 @@ dialog:focus,dialog:focus-visible{outline:0}
 .dots i[aria-current="true"]{background:var(--ink)}
 .lbf.cf{aspect-ratio:auto;width:100%;height:100%;width:100cqw;height:100cqh;background:none;overflow:hidden}
 .cf .track{align-items:center;gap:22px}
-.cf .slide{flex:0 0 auto;width:min(74vw,calc((100dvh - 300px) * var(--rn)));width:min(74cqw,calc((100cqh - 30px) * var(--rn)));aspect-ratio:var(--rn);overflow:visible;cursor:pointer}
+.cf .slide{flex:0 0 auto;width:min(74vw,calc((100vh - 300px) * var(--rn)));width:min(74vw,calc((100dvh - 300px) * var(--rn)));width:min(74cqw,calc((100cqh - 30px) * var(--rn)));aspect-ratio:var(--rn);overflow:visible;cursor:pointer}
 .cf .sl-in{position:absolute;inset:0;overflow:hidden;background:var(--paper-2);transform:perspective(1100px) translateX(calc(var(--d,0) * -7%)) rotateY(calc(var(--d,0) * -40deg)) scale(calc(1 - var(--a,0) * .13));opacity:calc(1 - var(--a,0) * .35);will-change:transform}
 .cf .sl-in img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .cf.fan .sl-in{animation:fan .9s var(--ease) backwards;animation-delay:calc(min(var(--k),7) * 70ms + .12s)}
@@ -687,7 +705,7 @@ dialog:focus,dialog:focus-visible{outline:0}
 @media (orientation:landscape) and (max-height:520px){.lb-strip,.lb-type{display:none}.lb-nav{margin-top:auto}.lb-stage{margin:12px;margin-top:12px;margin-right:72px}}
 
 /* ---------- страница кейса ---------- */
-#case{border:0;padding:0;margin:0;width:100vw;max-width:none;height:100dvh;max-height:none;background:var(--paper);color:var(--ink);overflow-y:auto;overscroll-behavior:contain}
+#case{border:0;padding:0;margin:0;width:100vw;max-width:none;height:100vh;height:100dvh;max-height:none;background:var(--paper);color:var(--ink);overflow-y:auto;overscroll-behavior:contain}
 #case::backdrop{background:var(--paper)}
 #case[open]{animation:casein .7s var(--ease-io)}
 @keyframes casein{from{clip-path:inset(100% 0 0 0)}to{clip-path:inset(0)}}
@@ -714,7 +732,7 @@ dialog:focus,dialog:focus-visible{outline:0}
 @media (min-width:860px){.cs-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.cs-cta{justify-content:start}}
 
 /* ---------- игра: отдельный экран, занавес при открытии ---------- */
-#game{border:0;padding:0;margin:0;width:100vw;max-width:none;height:100dvh;max-height:none;background:var(--paper);color:var(--ink);overflow-y:auto;overscroll-behavior:contain}
+#game{border:0;padding:0;margin:0;width:100vw;max-width:none;height:100vh;height:100dvh;max-height:none;background:var(--paper);color:var(--ink);overflow-y:auto;overscroll-behavior:contain}
 #game::backdrop{background:transparent}
 #exit::backdrop{background:rgba(12,12,12,.82)}
 #game[open]{display:flex;flex-direction:column}
@@ -738,7 +756,7 @@ dialog:focus,dialog:focus-visible{outline:0}
 .g-sc i{font-style:normal;font-family:var(--font-display);font-weight:800;font-size:clamp(1.6rem,4vw,3.4rem);line-height:1;color:var(--muted)}
 .g-q{font-family:var(--font-display);font-weight:800;font-size:clamp(1.4rem,4.4vw,4.2rem);line-height:.98;letter-spacing:-.04em;text-transform:uppercase;text-wrap:balance;overflow-wrap:break-word}
 /* поле: классическая решётка, фигуры нарисованы, а не набраны шрифтом */
-.g-board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:min(100%,46svh,460px);margin-inline:auto}
+.g-board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:min(100%,46vh,460px);width:min(100%,46svh,460px);margin-inline:auto}
 .g-cell{position:relative;aspect-ratio:1;padding:0;background:none;border:0;border-radius:0;font-size:0;color:transparent;cursor:pointer;--c:var(--ink)}
 .g-cell:not(:nth-child(3n)){border-right:2px solid var(--ink)}
 .g-cell:nth-child(-n+6){border-bottom:2px solid var(--ink)}
@@ -773,15 +791,15 @@ dialog:focus,dialog:focus-visible{outline:0}
   .g-body:not(.g-end) .g-sc{grid-column:1;grid-row:2;margin-top:clamp(8px,3vh,40px)}
   .g-body:not(.g-end) .g-q{grid-column:1;grid-row:3;align-self:end}
   .g-body:not(.g-end) .g-next{grid-column:1;grid-row:4}
-  .g-body:not(.g-end) .g-board{grid-column:2;grid-row:2 / span 3;align-self:center;width:min(60svh,42vw,620px)}
+  .g-body:not(.g-end) .g-board{grid-column:2;grid-row:2 / span 3;align-self:center;width:min(60vh,42vw,620px);width:min(60svh,42vw,620px)}
 }
 @media (orientation:landscape) and (max-height:559px){
   .g-body:not(.g-end){grid-template-columns:minmax(0,1fr) auto;column-gap:24px}
   .g-body:not(.g-end) .g-prog{grid-column:1 / -1}
-  .g-body:not(.g-end) .g-board{grid-column:2;grid-row:2 / span 3;width:min(62svh,40vw)}
+  .g-body:not(.g-end) .g-board{grid-column:2;grid-row:2 / span 3;width:min(62vh,40vw);width:min(62svh,40vw)}
   .g-body:not(.g-end)>:not(.g-board):not(.g-prog){grid-column:1}
 }
-#exit{inset:0 0 auto 0;border:0;border-bottom:1px solid var(--ink);padding:0;margin:0;width:100vw;max-width:none;max-height:100dvh;background:var(--paper);color:var(--ink);overflow:hidden}
+#exit{inset:0 0 auto 0;border:0;border-bottom:1px solid var(--ink);padding:0;margin:0;width:100vw;max-width:none;max-height:100vh;max-height:100dvh;background:var(--paper);color:var(--ink);overflow:hidden}
 #exit::backdrop{background:var(--veil)}
 #exit[open]{animation:exitin .7s var(--ease-io)}
 @keyframes exitin{from{transform:translateY(-100%)}to{transform:none}}
@@ -808,3 +826,8 @@ dialog:focus,dialog:focus-visible{outline:0}
 }
 .alt .ct-card{background:var(--paper)}
 .alt .ct-bar{background:var(--paper-2)}
+
+/* телефон: нижняя капсула Telegram уезжает при прокрутке вниз и возвращается при прокрутке вверх, как шапка */
+.hdr-hide:not(.menu-open) .tgbar.on{transform:translateY(140%)}
+/* касания без серой вспышки и без задержки двойного тапа */
+a,button,[role="button"],input,label{-webkit-tap-highlight-color:transparent;touch-action:manipulation}

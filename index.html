@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
-<meta name="build" content="2026-11-27-r44-sites">
+<meta name="build" content="2026-11-27-r46-polish">
 <title>AI CRAFTS — ИИ-контент</title>
 <meta name="description" content="Видео, фото, карусели и флаеры с помощью ИИ. За дни.">
 <meta property="og:title" content="AI CRAFTS — ИИ-контент">
@@ -33,7 +33,7 @@
     <button class="menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="menu" aria-label="Меню" data-i18n-attr="aria-label:menu.open"><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span><span class="menu-l mono" aria-hidden="true" data-i18n="menu.label">Меню</span></button>
     <nav class="nav" aria-label="Разделы" data-i18n-attr="aria-label:nav.aria">
       <a href="#works" data-i18n="nav.works">Работы</a>
-      <a href="#formats" data-i18n="nav.formats">Форматы</a><a href="#sites" data-sites hidden data-i18n="nav.sites">Сайты</a>
+      <a href="#sites" data-sites hidden data-i18n="nav.sites">Сайты</a>
       <a href="#process" data-i18n="nav.process">Процесс</a>
       <a href="#contact" data-i18n="nav.contact">Контакты</a>
       <i class="nav-ind" aria-hidden="true"></i>
@@ -46,7 +46,7 @@
   <div class="menu" id="menu" hidden>
     <div class="wrap">
       <a href="#works" data-i18n="nav.works">Работы</a>
-      <a href="#formats" data-i18n="nav.formats">Форматы</a><a href="#sites" data-sites hidden data-i18n="nav.sites">Сайты</a>
+      <a href="#sites" data-sites hidden data-i18n="nav.sites">Сайты</a>
       <a href="#process" data-i18n="nav.process">Процесс</a>
       <a href="#contact" data-i18n="nav.contact">Контакты</a>
       <button class="menu-theme" type="button" data-theme-toggle aria-pressed="false"><span data-i18n="theme.label">Тема</span><span class="mono"><b data-i18n="theme.light">Светлая</b><b data-i18n="theme.dark">Тёмная</b></span></button>
@@ -131,27 +131,13 @@
       <div class="filters" id="filters" role="group" aria-label="Фильтр по формату" data-i18n-attr="aria-label:filters.aria"></div>
       <div class="rail-pin" id="rail-pin"><div class="rail-stick">
         <ul class="works" id="works-list"></ul>
+        <p class="works-swipe mono" aria-hidden="true"><span data-i18n="works.swipe">Листайте</span><i id="works-ws"></i><span id="works-wn">1 / 1</span></p>
         <div class="rail-ctl" id="rail-ctl">
           <button class="ib" id="rail-prev" type="button" aria-label="Назад" data-i18n-attr="aria-label:rail.prev">←</button>
           <div class="rail-bar" aria-hidden="true"><i id="rail-i"></i></div>
           <button class="ib" id="rail-next" type="button" aria-label="Вперёд" data-i18n-attr="aria-label:rail.next">→</button>
         </div>
       </div></div>
-    </div>
-  </section>
-
-  <section class="sec" id="formats" aria-labelledby="fmt-h">
-    <div class="wrap">
-      <div class="sec-head">
-        <p class="eyebrow mono"><span class="sec-n" aria-hidden="true"></span><span data-i18n="fmt.eyebrow">Что делаем</span></p>
-        <h2 id="fmt-h" data-rv><span data-i18n="nav.formats">Форматы</span></h2>
-      </div>
-      <ul class="fmt" id="fmt-list">
-        <li><a href="#works" data-filter="video"><span class="fmt-name" data-i18n="fmt.video.name">Видео</span><span class="fmt-desc" data-i18n="fmt.video.desc">Reels и ролики. Досматривают до конца.</span><span class="fmt-go mono"><span data-i18n="fmt.go">Смотреть →</span></span></a></li>
-        <li><a href="#works" data-filter="photo"><span class="fmt-name" data-i18n="fmt.photo.name">Фото</span><span class="fmt-desc" data-i18n="fmt.photo.desc">Предметка, портреты, атмосфера.</span><span class="fmt-go mono"><span data-i18n="fmt.go">Смотреть →</span></span></a></li>
-        <li><a href="#works" data-filter="carousel"><span class="fmt-name" data-i18n="fmt.carousel.name">Карусели</span><span class="fmt-desc" data-i18n="fmt.carousel.desc">Листают до последнего слайда.</span><span class="fmt-go mono"><span data-i18n="fmt.go">Смотреть →</span></span></a></li>
-        <li><a href="#works" data-filter="flyer"><span class="fmt-name" data-i18n="fmt.flyer.name">Флаеры</span><span class="fmt-desc" data-i18n="fmt.flyer.desc">Их не выбрасывают.</span><span class="fmt-go mono"><span data-i18n="fmt.go">Смотреть →</span></span></a></li>
-      </ul>
     </div>
   </section>
 
@@ -230,7 +216,7 @@
     <p class="end" aria-hidden="true"><span class="end-t" data-i18n="footer.end">КОНЕЦ</span><span>.</span></p>
     <div class="credits mono">
       <div><h3 data-i18n="footer.cast">В ролях</h3><ul><li data-i18n="chip.video">Видео</li><li data-i18n="chip.photo">Фото</li><li data-i18n="chip.carousel">Карусели</li><li data-i18n="chip.flyer">Флаеры</li></ul></div>
-      <div><h3 data-i18n="footer.scenes">Сцены</h3><ul><li><a href="#works" data-i18n="nav.works">Работы</a></li><li><a href="#formats" data-i18n="nav.formats">Форматы</a></li><li data-sites hidden><a href="#sites" data-i18n="nav.sites">Сайты</a></li><li><a href="#process" data-i18n="nav.process">Процесс</a></li><li><a href="#contact" data-i18n="nav.contact">Заявка</a></li></ul></div>
+      <div><h3 data-i18n="footer.scenes">Сцены</h3><ul><li><a href="#works" data-i18n="nav.works">Работы</a></li><li></li><li data-sites hidden><a href="#sites" data-i18n="nav.sites">Сайты</a></li><li><a href="#process" data-i18n="nav.process">Процесс</a></li><li><a href="#contact" data-i18n="nav.contact">Заявка</a></li></ul></div>
       <div><h3 data-i18n="footer.contact">Связаться</h3><ul id="ftr-links"><li>AI CRAFTS</li></ul></div>
     </div>
     <div class="ftr-bar mono">

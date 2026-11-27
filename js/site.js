@@ -216,7 +216,7 @@
     countEl.textContent = t('works.count', f === 'all' ? WORKS.length : counts[f], f === 'all');
   }
   filtersEl.addEventListener('click', e => { const b = e.target.closest('button'); if (b) setFilter(b.dataset.f); });
-  $('#fmt-list').addEventListener('click', e => { const a = e.target.closest('a[data-filter]'); if (a) setFilter(a.dataset.filter); });
+  if ($('#fmt-list')) $('#fmt-list').addEventListener('click', e => { const a = e.target.closest('a[data-filter]'); if (a) setFilter(a.dataset.filter); });
 
   // лента: стрелки, полоса прокрутки, перетаскивание мышью
   const prevB = $('#rail-prev'), nextB = $('#rail-next'), bar = $('#rail-i');
@@ -449,6 +449,19 @@
     addEventListener('scroll', () => { if (!sRaf) sRaf = requestAnimationFrame(sUpd); }, { passive: true });
     addEventListener('resize', sUpd); sUpd();
   }
+  // телефон: полоска и счётчик под лентой работ
+  const wl = $('#works-list'), wsBar = $('#works-ws'), wsN = $('#works-wn');
+  if (wl && wsBar) {
+    const wsUpd = () => {
+      const max = wl.scrollWidth - wl.clientWidth, items = [...wl.children].filter(li => !li.hidden && li.offsetParent !== null);
+      const p = max > 0 ? wl.scrollLeft / max : 1, n = items.length || 1;
+      wsBar.style.setProperty('--ws', Math.max(1 / n, p).toFixed(3));
+      wsN.textContent = `${Math.min(n, Math.round(p * (n - 1)) + 1)} / ${n}`;
+    };
+    wl.addEventListener('scroll', wsUpd, { passive: true }); addEventListener('resize', wsUpd);
+    if ('MutationObserver' in window) new MutationObserver(wsUpd).observe(wl, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden', 'style'] });
+    wsUpd();
+  }
   // листы-секции: светлый и серый фон чередуются среди видимых секций
   const shade = () => { let k = 0; document.querySelectorAll('main > section.sec').forEach(sc => { if (sc.hidden || sc.classList.contains('gsec')) return; sc.classList.toggle('alt', k++ % 2 === 0); }); };
   shade();
@@ -466,7 +479,7 @@
     const io = new IntersectionObserver(es => es.forEach(en => {
       if (en.isIntersecting) { links.forEach(a => a.setAttribute('aria-current', String(a.getAttribute('href') === '#' + en.target.id))); moveInd(); }
     }), { rootMargin: '-45% 0px -50% 0px' });
-    ['top', 'works', 'formats', 'sites', 'process', 'contact'].forEach(id => { const s = document.getElementById(id); if (s) io.observe(s); });
+    ['top', 'works', 'sites', 'process', 'contact'].forEach(id => { const s = document.getElementById(id); if (s) io.observe(s); });
   }
   addEventListener('resize', moveInd);
   // полоса прогресса и прячущаяся при прокрутке вниз шапка
