@@ -568,6 +568,10 @@
     addEventListener('scroll', () => { if (!sRaf) sRaf = requestAnimationFrame(sUpd); }, { passive: true });
     addEventListener('resize', sUpd); sUpd();
   }
+  // листы-секции: светлый и серый фон чередуются среди видимых секций
+  const shade = () => { let k = 0; document.querySelectorAll('main > section.sec').forEach(sc => { if (sc.hidden || sc.classList.contains('gsec')) return; sc.classList.toggle('alt', k++ % 2 === 0); }); };
+  shade();
+  if ('MutationObserver' in window) document.querySelectorAll('main > section').forEach(sc => new MutationObserver(shade).observe(sc, { attributes: true, attributeFilter: ['hidden'] }));
   // шапка-капсула: чёрная плашка скользит под активный раздел
   const nav = $('.nav'), ind = $('.nav-ind');
   const moveInd = () => {
