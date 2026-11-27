@@ -401,53 +401,42 @@ h2[data-rv]>span{display:block}
   .fmt a:hover .fmt-go,.fmt a:focus-visible .fmt-go{color:var(--red-ink)}
 }
 
-/* ---------- сайты: стопка карточек ---------- */
-.sites{list-style:none;margin:0;padding:0;display:grid;gap:clamp(20px,3vh,36px)}
-.sk{--p:0;position:sticky;top:calc(var(--hdr) + 16px + var(--i,0) * 12px)}
-.sk-card{position:relative;display:grid;grid-template-rows:auto minmax(0,1fr);height:min(78svh,760px);overflow:hidden;color:var(--ink);background:var(--paper-2);text-decoration:none;transform:scale(calc(1 - var(--p) * .06));transform-origin:50% 0;filter:brightness(calc(1 - var(--p) * .35));transition:filter .2s}
-.sk-b .sk-card{background:var(--ink);color:var(--on-dark)}
-.sk-c .sk-card{background:var(--paper);outline:1px solid var(--ink);outline-offset:-1px}
-.sk-info{display:grid;gap:10px;align-content:start;padding:clamp(18px,2.4vw,36px);container-type:inline-size}
-.sk-n{color:var(--red)}
-.sk-title{font-family:var(--font-display);font-weight:800;line-height:.95;letter-spacing:-.035em;text-transform:uppercase;text-wrap:balance;overflow-wrap:break-word;hyphens:auto;
-  /* размер подбирается: самое длинное слово целиком в строку, всё название — не больше ~4 строк */
-  font-size:min(clamp(1.4rem,10cqi,4rem),calc(100cqi / (var(--lw,8) * .74)),calc(560cqi / var(--tl,20)))}
-.sk-desc{max-width:36ch;opacity:.7}
-.sk-foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 20px;margin-top:6px;opacity:.75}
-.sk-go{color:var(--red);opacity:1}
-.sk-shot{--dur:6s;position:relative;min-height:0;margin:0 clamp(12px,1.6vw,24px) clamp(12px,1.6vw,24px);overflow:hidden;background:#0c0c0c}
-.sk-shot img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 0;transition:object-position var(--dur) cubic-bezier(.45,0,.55,1)}
-.sk-card:hover .sk-shot.long:not(.iced) img,.sk-card:focus-visible .sk-shot.long:not(.iced) img{object-position:50% 100%}
-.sk-empty{position:absolute;inset:0;display:grid;place-items:center;color:#8a8a8a;font-family:var(--font-display);font-weight:800;font-size:clamp(1.4rem,4vw,3.4rem);letter-spacing:-.04em;text-transform:uppercase;text-align:center;padding:16px}
-.sk-card:focus-visible{outline:2px solid var(--red);outline-offset:4px}
-@media (hover:none){.sk-shot.long:not(.iced) img{animation:skscroll calc(var(--dur) * 2.2) ease-in-out infinite alternate}}
-@keyframes skscroll{0%,12%{object-position:50% 0}88%,100%{object-position:50% 100%}}
+/* ---------- сайты: индекс проектов ---------- */
+.sites{list-style:none;margin:0;padding:0;border-top:1px solid var(--ink)}
+.sx-row{position:relative;display:grid;grid-template-columns:2.4em minmax(0,1fr);gap:6px 14px;padding:22px 0;border-bottom:1px solid var(--line);color:var(--ink);text-decoration:none}
+.sx-n{grid-row:span 3;padding-top:.6em;color:var(--red);font-size:.7rem}
+.sx-t{font-family:var(--font-display);font-weight:800;font-size:clamp(1.7rem,4.4vw,4.4rem);line-height:.95;letter-spacing:-.045em;text-wrap:balance;transition:transform .5s var(--ease),color .3s}
+.sx-d{max-width:44ch;color:var(--muted);line-height:1.35}
+.sx-h{color:var(--muted);font-size:.66rem}
+.sx-m{position:relative;display:block;grid-column:1 / -1;margin-top:12px;aspect-ratio:16/10;overflow:hidden;border:1px solid var(--line);border-radius:12px;background:var(--paper-2)}
+.sx-m img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 0}
+.sx-m.long img{animation:sxscroll 14s ease-in-out infinite alternate}
+@keyframes sxscroll{0%,10%{object-position:50% 0}90%,100%{object-position:50% 100%}}
+a.sx-row:focus-visible{outline:2px solid var(--red);outline-offset:4px}
+/* окно-превью за курсором (только мышь) */
+.sx-pv{position:fixed;left:0;top:0;z-index:35;width:clamp(320px,30vw,480px);margin:-150px 0 0 0;border-radius:12px;overflow:hidden;background:var(--paper);box-shadow:0 40px 80px -30px rgba(0,0,0,.5),0 0 0 1px var(--line);pointer-events:none;opacity:0;scale:.85;transition:opacity .3s,scale .45s var(--ease)}
+.sx-pv.on{opacity:1;scale:1}
+.sx-pv-bar{display:flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-bottom:1px solid var(--line);background:var(--paper-2)}
+.sx-pv-bar i{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.sx-pv-bar i:first-child{background:var(--red)}
+.sx-pv-bar span{margin-left:10px;font-family:var(--font-mono);font-size:.6rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sx-pv-scr{position:relative;aspect-ratio:16/10;overflow:hidden;background:var(--paper-2)}
+.sx-pv-scr img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 0}
+.sx-pv-scr img.run{animation:sxscroll 9s ease-in-out infinite alternate}
+@media (hover:none){.sx-pv{display:none}}
 @media (min-width:900px){
-  .sk-card{grid-template-rows:none;grid-template-columns:minmax(0,4fr) minmax(0,8fr)}
-  .sk-info{grid-template-rows:auto 1fr auto auto;padding:clamp(24px,2.6vw,44px)}
-  .sk-title{align-self:end}
-  .sk-shot{margin:clamp(14px,1.4vw,22px) clamp(14px,1.4vw,22px) clamp(14px,1.4vw,22px) 0}
-  .sk:nth-child(even) .sk-card{grid-template-columns:minmax(0,8fr) minmax(0,4fr)}
-  .sk:nth-child(even) .sk-info{order:2}
-  .sk:nth-child(even) .sk-shot{margin:clamp(14px,1.4vw,22px) 0 clamp(14px,1.4vw,22px) clamp(14px,1.4vw,22px)}
+  .sx-row{grid-template-columns:4em minmax(0,6fr) minmax(0,4fr) minmax(0,2.4fr);align-items:center;gap:20px;padding:clamp(22px,2.6vw,36px) 0}
+  .sx-n{grid-row:auto;padding:0}
+  .sx-h{justify-self:end;text-align:right}
+  .sx-m{display:none}
+  .sites.hov .sx-row:not(.cur) .sx-t{color:var(--line)}
+  .sites.hov .sx-row:not(.cur) .sx-d,.sites.hov .sx-row:not(.cur) .sx-h{opacity:.35}
+  .sx-row.cur .sx-t{transform:translateX(14px)}
+  .sx-row.cur .sx-h{color:var(--red)}
+  .sites.hov .sx-row.cur .sx-d{opacity:0}
+  .sx-d,.sx-h{transition:opacity .3s,color .3s}
 }
-/* красный круг вместо курсора */
-.sk-cur{position:fixed;left:0;top:0;z-index:35;display:grid;place-items:center;width:104px;height:104px;margin:-52px 0 0 -52px;border-radius:50%;background:var(--red);color:#fff;pointer-events:none;opacity:0;scale:.3;transition:opacity .25s,scale .35s var(--ease)}
-.sk-cur.on{opacity:1;scale:1}
-.sk-cur.hit{background:#cfe6f2;color:#111}
-/* лёд */
-.sk-shot .ice{position:absolute;inset:0;-webkit-backdrop-filter:blur(10px) saturate(.6) brightness(1.06);backdrop-filter:blur(10px) saturate(.6) brightness(1.06);background:linear-gradient(160deg,rgba(236,246,252,.6),rgba(186,214,230,.38) 48%,rgba(244,250,255,.55));transition:opacity .2s}
-.ice-c{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-.ice-hint{position:absolute;left:50%;top:50%;translate:-50% -50%;display:grid;justify-items:center;gap:10px;padding:12px 16px;background:rgba(255,255,255,.8);color:#111;white-space:nowrap;pointer-events:none;transition:opacity .25s}
-.ice-hint b{display:flex;gap:6px}
-.ice-hint i{width:9px;height:9px;border-radius:50%;border:1px solid #111;transition:background .2s,border-color .2s}
-.ice-hint i.on{background:var(--red);border-color:var(--red)}
-.sk-shot.broken .ice,.sk-shot.broken .ice-hint{opacity:0}
-.sk-shot.hit{animation:icehit .28s}
-@keyframes icehit{25%{translate:5px -4px}50%{translate:-4px 3px}75%{translate:2px -1px}}
-@media (hover:hover) and (pointer:fine){.sk-card:has(.iced){cursor:none}}
-@media (hover:hover) and (pointer:fine){a.sk-card{cursor:none}}
-@media (hover:none){.sk-cur{display:none}}
+@media (hover:hover) and (min-width:900px){a.sx-row{cursor:pointer}}
 
 /* ---------- процесс: вы / мы / срок ---------- */
 
