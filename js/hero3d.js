@@ -3,7 +3,7 @@
 // Голова поворачивается за курсором, глаза следят за ним. Качество подстраивается под устройство;
 // вне экрана и в фоне рендер останавливается.
 (() => {
-  // на компьютере вместо головы кубики (cubes3d.js)
+  // на компьютере вместо головы веер работ (fan.js)
   if (matchMedia('(min-width: 900px) and (hover: hover) and (pointer: fine)').matches) return;
   const root = document.documentElement;
   const canvas = document.getElementById('hero3d');

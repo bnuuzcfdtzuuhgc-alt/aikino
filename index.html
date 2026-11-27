@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
-<meta name="build" content="2026-11-20-r34-font">
+<meta name="build" content="2026-11-27-r36-fan">
 <title>AI CRAFTS — ИИ-контент</title>
 <meta name="description" content="Видео, фото, карусели и флаеры с помощью ИИ. За дни.">
 <meta property="og:title" content="AI CRAFTS — ИИ-контент">
@@ -29,25 +29,26 @@
   <div class="pre-bar" aria-hidden="true"><i id="pre-fill"></i></div>
 </div>
 <header class="hdr">
-  <div class="wrap">
-    <a class="logo" href="#top" aria-label="AI CRAFTS, в начало страницы" data-i18n-attr="aria-label:logo.aria"><i aria-hidden="true"></i>AI CRAFTS</a>
+  <div class="hdr-pill">
+    <button class="menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="menu" aria-label="Меню" data-i18n-attr="aria-label:menu.open"><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span><span class="menu-l mono" aria-hidden="true" data-i18n="menu.label">Меню</span></button>
     <nav class="nav" aria-label="Разделы" data-i18n-attr="aria-label:nav.aria">
       <a href="#works" data-i18n="nav.works">Работы</a>
       <a href="#formats" data-i18n="nav.formats">Форматы</a><a href="#sites" data-sites hidden data-i18n="nav.sites">Сайты</a>
       <a href="#process" data-i18n="nav.process">Процесс</a>
-      <a href="#contact" data-i18n="nav.contact">Заявка</a>
+      <a href="#contact" data-i18n="nav.contact">Контакты</a>
+      <i class="nav-ind" aria-hidden="true"></i>
     </nav>
     <button class="theme-btn" type="button" data-theme-toggle aria-pressed="false" aria-label="Тёмная тема" data-i18n-attr="aria-label:theme.aria"><i aria-hidden="true"></i></button>
-    <a class="btn sm" href="#contact" data-tg data-i18n="cta.tg">Написать в ТГ</a>
     <div class="lang" role="group" aria-label="Язык" data-i18n-attr="aria-label:lang.aria"><button type="button" data-lang="ru" aria-pressed="true">RU</button><button type="button" data-lang="en" aria-pressed="false">EN</button></div>
-    <button class="menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="menu" aria-label="Меню" data-i18n-attr="aria-label:menu.open"><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span></button>
+    <a class="btn sm hdr-cta" href="#contact" data-tg><span data-i18n="cta.tg">Написать в ТГ</span><span class="arr" aria-hidden="true">→</span></a>
+    <i class="hdr-prog" aria-hidden="true"></i>
   </div>
   <div class="menu" id="menu" hidden>
     <div class="wrap">
       <a href="#works" data-i18n="nav.works">Работы</a>
       <a href="#formats" data-i18n="nav.formats">Форматы</a><a href="#sites" data-sites hidden data-i18n="nav.sites">Сайты</a>
       <a href="#process" data-i18n="nav.process">Процесс</a>
-      <a href="#contact" data-i18n="nav.contact">Заявка</a>
+      <a href="#contact" data-i18n="nav.contact">Контакты</a>
       <button class="menu-theme" type="button" data-theme-toggle aria-pressed="false"><span data-i18n="theme.label">Тема</span><span class="mono"><b data-i18n="theme.light">Светлая</b><b data-i18n="theme.dark">Тёмная</b></span></button>
       <a class="btn menu-cta" href="#contact" data-tg data-i18n="cta.tgArrow">Написать в ТГ →</a>
     </div>
@@ -55,7 +56,7 @@
 </header>
 
 <main id="top">
-  <section class="hero" aria-labelledby="wm">
+  <section class="hero" aria-labelledby="hero-h">
     <canvas class="hero-gl" id="hero3d" aria-hidden="true"></canvas>
     <div class="hero-fb" aria-hidden="true">
       <svg viewBox="0 0 400 520" fill="none">
@@ -66,32 +67,22 @@
         <path class="fb-line" d="M200 250v60l-14 10M174 360c16 8 36 8 52 0"/>
       </svg>
     </div>
+    <span class="cubes-hint mono" id="cubes-hint" hidden data-i18n="hero.play">Нажмите на кадр</span>
     <div class="wrap hero-in">
-      <div class="hero-meta mono" aria-hidden="true">
-        <span class="rec"><i></i>REC <span id="tc">00:00:00:00</span></span>
-        <span class="cubes-hint" id="cubes-hint" hidden data-i18n="hero.play">Кубики можно трогать</span>
-      </div>
-      <div class="hx-title" id="hx-title">
-        <h1 class="wordmark" id="wm"><span data-i18n="hero.wm">ИИ КОНТЕНТ</span><span class="sr" data-i18n="hero.sr"> — AI CRAFTS, студия видео, фото, каруселей и флаеров</span></h1>
-      </div>
-      <div class="hero-row">
-        <div class="lead-box">
-          <p class="lead" data-i18n-html="hero.lead"><b>Делаем контент с ИИ.</b> Быстро и со вкусом.</p>
-        </div>
-        <div class="hero-side">
-          <div class="cta-row">
-            <a class="btn" href="#contact" data-tg><span data-i18n="cta.tg">Написать в ТГ</span><span class="arr" aria-hidden="true">→</span></a>
-            <a class="btn ghost" href="#works"><span data-i18n="hero.works">Смотреть работы</span></a>
-          </div>
+      <div class="hero-txt">
+        <p class="hero-k mono" data-i18n="hero.k">ИИ КОНТЕНТ — видео, фото, карусели, флаеры</p>
+        <h1 class="hero-h" id="hero-h"><span class="sr" data-i18n="hero.sr">Контент без съёмок, студии и моделей — AI CRAFTS</span><span aria-hidden="true"><span class="hh-1" data-i18n="hero.h">Контент без</span> <span class="pain" id="pain"><span class="pain-w" id="pain-w">съёмок</span></span></span></h1>
+        <p class="hero-sub" data-i18n="hero.sub">Видео, фото, карусели и флаеры для вашего бренда. Делаем с ИИ — за несколько дней.</p>
+        <div class="cta-row">
+          <a class="btn" href="#contact" data-tg><span data-i18n="cta.tg">Написать в ТГ</span><span class="arr" aria-hidden="true">→</span></a>
+          <a class="btn ghost" href="#works"><span data-i18n="hero.works">Смотреть работы</span></a>
         </div>
       </div>
-    </div>
-    <div class="slate">
-      <div class="wrap slate-in">
-        <div class="slate-c slate-fc"><p class="mono slate-k" data-i18n="slate.formats">Форматы</p><p class="slate-f" id="slate-f"></p></div>
-        <div class="slate-c"><p class="mono slate-k" data-i18n="slate.time">Срок</p><p class="slate-big" data-i18n="slate.timev">Дни</p></div>
-        <a class="slate-c slate-go" href="#works"><span class="mono slate-k" data-i18n="slate.works">Работы</span><span class="slate-big"><b id="slate-n">·</b></span><span class="slate-arr" aria-hidden="true">↓</span></a>
-      </div>
+      <ol class="ba" aria-label="Было и стало" data-i18n-attr="aria-label:ba.aria">
+        <li><span class="ba-n mono">01</span><s class="ba-was" data-i18n="ba.1w">Неделя на съёмку</s><span class="ba-now" data-i18n="ba.1n">Готово за дни</span></li>
+        <li><span class="ba-n mono">02</span><s class="ba-was" data-i18n="ba.2w">Студия, свет, модели</s><span class="ba-now" data-i18n="ba.2n">Ничего этого не нужно</span></li>
+        <li><span class="ba-n mono">03</span><s class="ba-was" data-i18n="ba.3w">Ленту листают мимо</s><span class="ba-now" data-i18n="ba.3n">Кадр, на котором замирают</span></li>
+      </ol>
     </div>
   </section>
 
@@ -305,7 +296,7 @@
 
 <script src="config.js" defer></script>
 <script src="js/i18n.js" defer></script>
-<script src="js/cubes3d.js" defer></script>
+<script src="js/fan.js" defer></script>
 <script src="js/hero3d.js" defer></script>
 <script src="js/site.js" defer></script>
 <script src="js/game.js" defer></script>

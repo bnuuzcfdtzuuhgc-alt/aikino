@@ -52,65 +52,25 @@
     reelSec.hidden = false;
   };
   if (CONFIG.REEL.src) showReel(CONFIG.REEL.src, CONFIG.REEL.poster);
-  const tc = $('#tc');
-  if (!reduce) {
-    const t0 = performance.now(); let last = -1;
-    const pad = n => String(n).padStart(2, '0');
-    const tick = now => {
-      const f = Math.floor((now - t0) / 40);
-      if (f !== last) { last = f; tc.textContent = `${pad(Math.floor(f / 90000) % 100)}:${pad(Math.floor(f / 1500) % 60)}:${pad(Math.floor(f / 25) % 60)}:${pad(f % 25)}`; }
-      if (!document.hidden) requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-    document.addEventListener('visibilitychange', () => { if (!document.hidden) requestAnimationFrame(tick); });
-  }
-  const wm = $('#wm');
-
   // анимации: только если пользователь не просил уменьшить движение
   const motion = !matchMedia('(prefers-reduced-motion: reduce)').matches;
   const html = document.documentElement;
-  const buildWordmark = () => {
-    const box = wm.firstElementChild, text = t('hero.wm');
-    box.setAttribute('aria-hidden', 'true');
-    box.removeAttribute('data-i18n');
-    box.textContent = '';
-    text.split(' ').forEach((w, wi) => {
-      const ww = document.createElement('span'); ww.className = 'ww' + (motion ? ' mo' : '');
-      if (!motion) ww.textContent = w;
-      else [...w].forEach((ch, i) => {
-        const s = document.createElement('span');
-        s.className = 'wl'; s.style.setProperty('--i', wi * 4 + i); s.textContent = ch;
-        ww.appendChild(s);
-      });
-      box.appendChild(ww);
-    });
-  };
   if (motion) { html.classList.add('anim'); setTimeout(() => html.classList.add('go'), 10000); }
+  // главный экран: «Контент без …» — боль появляется и перечёркивается красным
+  const pain = $('#pain'), painW = $('#pain-w');
+  let pi = 0, pt = 0;
+  const painShow = () => {
+    const a = t('hero.pains'); painW.textContent = a[pi % a.length];
+    pain.classList.remove('x', 'in'); void pain.offsetWidth; pain.classList.add('in');
+    clearTimeout(pt);
+    pt = setTimeout(() => { pain.classList.add('x'); pt = setTimeout(() => { pi++; painShow(); }, 2000); }, 700);
+  };
+  const buildWordmark = () => {
+    pi = 0;
+    if (motion) painShow(); else { painW.textContent = t('hero.pains')[0]; pain.classList.add('in', 'x'); }
+  };
   buildWordmark();
-  // меняющееся слово и бегущая лента
-  const swapW = $('#swap-w');
-  let si = 0;
-  const swapSet = () => {
-    if (!swapW) return;
-    const a = t('hero.swapw'); swapW.textContent = a[si % a.length];
-    swapW.classList.remove('flip'); void swapW.offsetWidth; swapW.classList.add('flip');
-  };
-  swapSet();
-  if (motion && swapW) setInterval(() => { si++; swapSet(); }, 1800);
-  // подгоняем кегль так, чтобы надпись занимала всю ширину:
-  // на компьютере это одна строка, на телефоне слова стоят друг под другом и меряется самое длинное
-  const fit = () => {
-    const line = wm.firstElementChild;
-    if (!line || !line.children.length) return;
-    wm.style.fontSize = '100px';
-    const stacked = window.getComputedStyle(line).flexDirection === 'column';
-    const w = stacked ? Math.max(...[...line.children].map(c => c.getBoundingClientRect().width)) : line.getBoundingClientRect().width;
-    const box = wm.clientWidth;
-    if (!(w > 0 && box > 0)) return;
-    wm.style.fontSize = Math.min(box / w * 100 * .985, 360) + 'px';
-  };
-  let fitRaf; addEventListener('resize', () => { cancelAnimationFrame(fitRaf); fitRaf = requestAnimationFrame(fit); });
-  fit(); if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+  const fit = () => {}, swapSet = () => {};
 
   // подключение config.js и Supabase: работы из базы заменяют заглушки
   const SB = (C.SUPABASE_URL || '').replace(/\/$/, ''), SK = C.SUPABASE_ANON_KEY || '';
@@ -356,11 +316,12 @@
   // «хлопушка» под главным экраном: форматы с реальным числом работ ведут сразу в отфильтрованную ленту
   const slateF = $('#slate-f');
   const renderSlate = () => {
+    if (!slateF) return;
     slateF.innerHTML = FILTERS.filter(f => f !== 'all' && counts[f]).map(f => `<a href="#works" data-filter="${f}">${t('filter.' + f)}<sup>${counts[f]}</sup></a>`).join('');
     $('#slate-n').textContent = String(WORKS.length).padStart(2, '0');
   };
   renderSlate();
-  slateF.addEventListener('click', e => { const a = e.target.closest('a[data-filter]'); if (a) setFilter(a.dataset.filter); });
+  if (slateF) slateF.addEventListener('click', e => { const a = e.target.closest('a[data-filter]'); if (a) setFilter(a.dataset.filter); });
   const renderFilters = () => {
     filtersEl.innerHTML = FILTERS.filter(f => counts[f]).map(f => `<button type="button" data-f="${f}" aria-pressed="${f === filter}">${t('filter.' + f)}<span class="n">${counts[f]}</span></button>`).join('');
   };
@@ -517,7 +478,7 @@
     el.addEventListener('transitionend', clean, { once: true }); setTimeout(clean, 1000);
   }
   // для баннера при уходе: работы с настоящими превью и открытие просмотра
-  window.AIC = { works: () => WORKS.map((w, i) => ({ i, src: thumbSrc(w), title: wt(w), rn: rn(w) })).filter(x => x.src), open: i => open(i, null) };
+  window.AIC = { works: () => WORKS.map((w, i) => ({ i, src: thumbSrc(w), title: wt(w), rn: rn(w), type: w.type })).filter(x => x.src), open: i => open(i, null) };
   let openT = 0;
   function open(i, btn) {
     opener = btn; show(i);
@@ -585,7 +546,7 @@
     html.classList.toggle('menu-open', o);
   };
   mb.onclick = () => setMenu(menu.hidden);
-  matchMedia('(min-width:820px)').addEventListener('change', e => { if (e.matches) setMenu(false); });
+  matchMedia('(min-width:1000px)').addEventListener('change', e => { if (e.matches) setMenu(false); });
   menu.addEventListener('click', e => { if (e.target.closest('a')) setMenu(false); });
   // страницу под открытым меню не листаем (без overflow:hidden на html: он сбрасывал позицию и прятал липкую шапку)
   const stopBg = e => { if (!menu.hidden && !menu.contains(e.target)) e.preventDefault(); };
@@ -593,11 +554,35 @@
   document.addEventListener('wheel', stopBg, { passive: false });
   document.addEventListener('click', e => { if (!menu.hidden && !e.target.closest('.hdr')) setMenu(false); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !menu.hidden) { setMenu(false); mb.focus(); } });
+  // шапка-капсула: чёрная плашка скользит под активный раздел
+  const nav = $('.nav'), ind = $('.nav-ind');
+  const moveInd = () => {
+    const cur = nav && nav.querySelector('a[aria-current="true"]:not([hidden])');
+    if (!cur || !ind) { if (nav) nav.classList.remove('has'); return; }
+    ind.style.setProperty('--ix', cur.offsetLeft + 'px'); ind.style.setProperty('--iw', cur.offsetWidth + 'px');
+    nav.classList.add('has');
+  };
   if ('IntersectionObserver' in window) {
     const links = [...document.querySelectorAll('.nav a')];
-    const io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) links.forEach(a => a.setAttribute('aria-current', String(a.getAttribute('href') === '#' + en.target.id))); }), { rootMargin: '-45% 0px -50% 0px' });
-    ['works','formats','process','contact'].forEach(id => { const s = document.getElementById(id); if (s) io.observe(s); });
+    const io = new IntersectionObserver(es => es.forEach(en => {
+      if (en.isIntersecting) { links.forEach(a => a.setAttribute('aria-current', String(a.getAttribute('href') === '#' + en.target.id))); moveInd(); }
+    }), { rootMargin: '-45% 0px -50% 0px' });
+    ['top', 'works', 'formats', 'sites', 'process', 'contact'].forEach(id => { const s = document.getElementById(id); if (s) io.observe(s); });
   }
+  addEventListener('resize', moveInd);
+  // полоса прогресса и прячущаяся при прокрутке вниз шапка
+  const hdr = $('.hdr');
+  let lastY = scrollY, hRaf = 0;
+  addEventListener('scroll', () => {
+    if (hRaf) return;
+    hRaf = requestAnimationFrame(() => {
+      hRaf = 0;
+      const y = scrollY, max = document.documentElement.scrollHeight - innerHeight;
+      hdr.style.setProperty('--sp', max > 0 ? (y / max).toFixed(4) : 0);
+      if (menu.hidden && Math.abs(y - lastY) > 6) { html.classList.toggle('hdr-hide', y > lastY && y > 240); lastY = y; }
+      html.classList.toggle('hdr-up', y > 40);
+    });
+  }, { passive: true });
 
   // contacts + consent text
   const links = $('#links');
