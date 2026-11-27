@@ -554,6 +554,20 @@
   document.addEventListener('wheel', stopBg, { passive: false });
   document.addEventListener('click', e => { if (!menu.hidden && !e.target.closest('.hdr')) setMenu(false); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !menu.hidden) { setMenu(false); mb.focus(); } });
+  // «Как работаем»: красная линия заполняется по мере прокрутки, пройденные шаги загораются
+  const stepsEl = $('#steps');
+  if (stepsEl) {
+    const stepLis = [...stepsEl.children]; let sRaf = 0;
+    const sUpd = () => {
+      sRaf = 0;
+      const r = stepsEl.getBoundingClientRect(), vh = innerHeight;
+      const p = Math.min(1, Math.max(0, (vh * 0.75 - r.top) / Math.max(1, r.height * 0.9)));
+      stepsEl.style.setProperty('--pp', p.toFixed(3));
+      stepLis.forEach((li, k) => li.classList.toggle('on', p >= (k + 0.15) / stepLis.length));
+    };
+    addEventListener('scroll', () => { if (!sRaf) sRaf = requestAnimationFrame(sUpd); }, { passive: true });
+    addEventListener('resize', sUpd); sUpd();
+  }
   // шапка-капсула: чёрная плашка скользит под активный раздел
   const nav = $('.nav'), ind = $('.nav-ind');
   const moveInd = () => {
@@ -591,6 +605,40 @@
   if (CONFIG.INSTAGRAM) add(`<a href="${esc(CONFIG.INSTAGRAM)}" target="_blank" rel="noopener">Instagram ↗</a>`);
   if (CONFIG.EMAIL) add(`<span>${esc(CONFIG.EMAIL)}</span>`);
   if (CONFIG.TELEGRAM) document.querySelectorAll('[data-tg]').forEach(a => { a.href = CONFIG.TELEGRAM; a.target = '_blank'; a.rel = 'noopener'; });
+  // контакты: сообщение собирается из кнопок и копируется перед переходом в Telegram
+  const ctWhat = $('#ct-what'), ctWhen = $('#ct-when'), ctBiz = $('#ct-biz'), ctBub = $('#ct-bubble'), ctGo = $('#ct-go'), ctDone = $('#ct-done');
+  if (ctWhat) {
+    const pickW = new Set(['video']); let pickT = 'week';
+    const chips = () => {
+      const wv = t('ct.whatv'), tv = t('ct.whenv');
+      ctWhat.innerHTML = Object.keys(wv).map(k => `<button type="button" data-k="${k}" aria-pressed="${pickW.has(k)}">${esc(wv[k])}</button>`).join('');
+      ctWhen.innerHTML = Object.keys(tv).map(k => `<button type="button" data-k="${k}" aria-pressed="${k === pickT}">${esc(tv[k])}</button>`).join('');
+    };
+    const msg = () => {
+      const wv = t('ct.whatv'), tv = t('ct.whenv');
+      const what = Object.keys(wv).filter(k => pickW.has(k)).map(k => wv[k].toLowerCase().replace(/^reels/, 'Reels')).join(', ');
+      return t('ct.msg', what, ctBiz.value.trim().slice(0, 60), pickT ? tv[pickT].toLowerCase() : '');
+    };
+    const draw = () => {
+      ctBub.textContent = msg();
+      ctBub.classList.remove('pop'); void ctBub.offsetWidth; ctBub.classList.add('pop');
+      const d = new Date(); $('#ct-time').textContent = d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0') + ' ✓✓';
+      ctDone.textContent = '';
+    };
+    ctWhat.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; const k = b.dataset.k; if (pickW.has(k) && pickW.size > 1) pickW.delete(k); else pickW.add(k); chips(); draw(); });
+    ctWhen.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; pickT = b.dataset.k; chips(); draw(); });
+    ctBiz.addEventListener('input', draw);
+    ctGo.addEventListener('click', () => {
+      const text = msg();
+      const ok = () => { ctDone.textContent = t('ct.done'); ctDone.className = 'ct-done mono ok'; };
+      const fail = () => { ctDone.textContent = t('ct.nocopy'); ctDone.className = 'ct-done mono'; };
+      // ссылка открывается сама (обычный переход), копирование не задерживает её
+      try { if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, fail); else fail(); } catch { fail(); }
+    });
+    chips(); draw();
+    I18N.onChange(() => { chips(); draw(); });
+  }
+
   // плавающая плашка: появляется при прокрутке, прячется у заявки и подвала
   const tgbar = $('#tgbar'), tgLink = tgbar.querySelector('a');
   const hideZones = new Set();

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
-<meta name="build" content="2026-11-27-r36-fan">
+<meta name="build" content="2026-11-27-r40-copy">
 <title>AI CRAFTS — ИИ-контент</title>
 <meta name="description" content="Видео, фото, карусели и флаеры с помощью ИИ. За дни.">
 <meta property="og:title" content="AI CRAFTS — ИИ-контент">
@@ -172,13 +172,18 @@
       <div class="sec-head">
         <p class="eyebrow mono"><span class="sec-n" aria-hidden="true"></span><span data-i18n="nav.process">Процесс</span></p>
         <h2 id="proc-h" data-rv><span data-i18n="proc.title">Как работаем</span></h2>
+        <p class="hint" data-i18n="proc.hint">Четыре шага. Без брифов и созвонов.</p>
       </div>
-      <ol class="steps">
-        <li class="step"><p class="mono step-n" data-frame="1">Кадр 1</p><h3 data-i18n="proc.1.t">Завязка</h3><p data-i18n="proc.1.d">Вы пишете задачу. Мы предлагаем идею.</p></li>
-        <li class="step"><p class="mono step-n" data-frame="2">Кадр 2</p><h3 data-i18n="proc.2.t">Съёмка</h3><p data-i18n="proc.2.d">ИИ и дизайнер делают материал.</p></li>
-        <li class="step"><p class="mono step-n" data-frame="3">Кадр 3</p><h3 data-i18n="proc.3.t">Монтаж</h3><p data-i18n="proc.3.d">Правим, пока не понравится.</p></li>
-        <li class="step"><p class="mono step-n" data-frame="4">Кадр 4</p><h3 data-i18n="proc.4.t">Премьера</h3><p data-i18n="proc.4.d">Отдаём файлы. Вы публикуете.</p></li>
+      <ol class="steps" id="steps">
+        <li class="step"><p class="step-top"><span class="step-n mono">01</span><span class="step-t mono" data-i18n="proc.1.time">5 минут</span></p><h3 data-i18n="proc.1.t">Пишете нам</h3><p class="step-r you"><b class="mono" data-i18n="proc.you">Вы</b><span data-i18n="proc.1.you">Пара строк о задаче в Telegram.</span></p><p class="step-r"><b class="mono" data-i18n="proc.we">Мы</b><span data-i18n="proc.1.we">Задаём два-три вопроса.</span></p></li>
+        <li class="step"><p class="step-top"><span class="step-n mono">02</span><span class="step-t mono" data-i18n="proc.2.time">1 день</span></p><h3 data-i18n="proc.2.t">Идея</h3><p class="step-r"><b class="mono" data-i18n="proc.we">Мы</b><span data-i18n="proc.2.we">Присылаем идею и первый кадр.</span></p><p class="step-r you"><b class="mono" data-i18n="proc.you">Вы</b><span data-i18n="proc.2.you">Говорите «да» или что поменять.</span></p></li>
+        <li class="step"><p class="step-top"><span class="step-n mono">03</span><span class="step-t mono" data-i18n="proc.3.time">Несколько дней</span></p><h3 data-i18n="proc.3.t">Делаем</h3><p class="step-r"><b class="mono" data-i18n="proc.we">Мы</b><span data-i18n="proc.3.we">Генерируем, рисуем, монтируем. Показываем черновик.</span></p><p class="step-r you"><b class="mono" data-i18n="proc.you">Вы</b><span data-i18n="proc.3.you">Смотрите черновик и пишете правки.</span></p></li>
+        <li class="step"><p class="step-top"><span class="step-n mono">04</span><span class="step-t mono" data-i18n="proc.4.time">Готово</span></p><h3 data-i18n="proc.4.t">Получаете файлы</h3><p class="step-r"><b class="mono" data-i18n="proc.we">Мы</b><span data-i18n="proc.4.we">Отдаём размеры под Reels, ленту, сторис и печать.</span></p><p class="step-r you"><b class="mono" data-i18n="proc.you">Вы</b><span data-i18n="proc.4.you">Публикуете.</span></p></li>
       </ol>
+      <div class="proc-end">
+        <p class="proc-sum" data-i18n-html="proc.sum">Ваша часть — <b>пара сообщений</b>. Остальное делаем мы.</p>
+        <a class="btn" href="#contact" data-tg><span data-i18n="proc.cta">Начать с шага 01</span><span class="arr" aria-hidden="true">→</span></a>
+      </div>
     </div>
   </section>
 
@@ -196,15 +201,24 @@
   </section>
 
   <section class="sec contact-sec" id="contact" aria-labelledby="contact-h">
-    <div class="wrap">
-      <p class="eyebrow mono"><span class="sec-n" aria-hidden="true"></span><span data-i18n="nav.contact">Контакты</span></p>
-      <h2 class="contact-h" id="contact-h" data-rv><span data-i18n="contact.title">Напишите</span></h2>
-      <div class="contact-row">
-        <p class="hint" data-i18n="contact.hint">Пара строк в Telegram. Брифы не нужны.</p>
-        <div class="contact-cta">
-          <a class="btn big" href="#" data-tg><span data-i18n="cta.tg">Написать в ТГ</span><span class="arr" aria-hidden="true">→</span></a>
-          <p class="mono contact-note" data-i18n="contact.note">Отвечает человек</p>
-          <ul class="links" id="links"></ul>
+    <div class="wrap ct-in">
+      <div class="ct-txt">
+        <p class="eyebrow mono"><span class="sec-n" aria-hidden="true"></span><span data-i18n="nav.contact">Контакты</span></p>
+        <h2 class="ct-h" id="contact-h" data-rv><span data-i18n="contact.title">Шаг 01</span></h2>
+        <p class="ct-lead" data-i18n-html="contact.lead">Соберите сообщение <b>в два клика</b>. Мы скопируем текст — останется вставить его в Telegram.</p>
+        <ul class="links" id="links"></ul>
+      </div>
+      <div class="ct-card">
+        <div class="ct-bar"><span class="ct-ava" aria-hidden="true">AI</span><span class="ct-who"><b>AI CRAFTS</b><span class="mono" data-i18n="contact.note">Отвечает человек</span></span></div>
+        <div class="ct-body">
+          <fieldset class="ct-q"><legend class="mono" data-i18n="ct.what">Что нужно</legend><div class="ct-chips" id="ct-what" data-multi></div></fieldset>
+          <fieldset class="ct-q"><legend class="mono" data-i18n="ct.when">Когда</legend><div class="ct-chips" id="ct-when"></div></fieldset>
+          <label class="ct-q ct-biz"><span class="mono" data-i18n="ct.biz">Ваш бизнес (по желанию)</span><input id="ct-biz" type="text" maxlength="60" autocomplete="organization" placeholder="кофейня, салон, школа…" data-i18n-attr="placeholder:ct.bizph"></label>
+          <div class="ct-msg" aria-live="polite"><p class="ct-bubble" id="ct-bubble"></p><span class="ct-time mono" id="ct-time"></span></div>
+        </div>
+        <div class="ct-send">
+          <a class="btn ct-go" id="ct-go" href="#" data-tg><span data-i18n="ct.send">Скопировать и в Telegram</span><span class="arr" aria-hidden="true">→</span></a>
+          <p class="ct-done mono" id="ct-done" role="status"></p>
         </div>
       </div>
     </div>
