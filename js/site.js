@@ -463,8 +463,18 @@
     wsUpd();
   }
   // листы-секции: светлый и серый фон чередуются среди видимых секций
-  const shade = () => { let k = 0; document.querySelectorAll('main > section.sec').forEach(sc => { if (sc.hidden || sc.classList.contains('gsec')) return; sc.classList.toggle('alt', k++ % 2 === 0); }); };
+  // секции в порядке показа (на телефоне порядок свой, задан в CSS): чередование фона и номера в ярлыках
+  const shade = () => {
+    const secs = [...document.querySelectorAll('main > section.sec')].filter(sc => !sc.hidden && getComputedStyle(sc).display !== 'none')
+      .map((sc, i) => ({ sc, o: (parseInt(getComputedStyle(sc).order, 10) || 0) * 100 + i })).sort((a, b) => a.o - b.o).map(x => x.sc);
+    let k = 0, n = 0;
+    secs.forEach(sc => {
+      const num = sc.querySelector('.sec-n'); if (num) num.dataset.n = String(++n).padStart(2, '0');
+      if (!sc.classList.contains('gsec')) sc.classList.toggle('alt', k++ % 2 === 0);
+    });
+  };
   shade();
+  matchMedia('(max-width:767px)').addEventListener('change', shade);
   if ('MutationObserver' in window) document.querySelectorAll('main > section').forEach(sc => new MutationObserver(shade).observe(sc, { attributes: true, attributeFilter: ['hidden'] }));
   // шапка-капсула: чёрная плашка скользит под активный раздел
   const nav = $('.nav'), ind = $('.nav-ind');

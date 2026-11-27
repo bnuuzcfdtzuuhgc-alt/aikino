@@ -313,6 +313,7 @@ main{counter-reset:sec}
 .eyebrow{display:inline-flex;align-items:center;gap:.9em;justify-self:start;width:max-content;max-width:100%;padding:8px 15px 8px 13px;border:1px solid var(--line);border-radius:999px;background:var(--paper);color:var(--ink)}
 .alt .eyebrow{background:var(--paper)}
 .sec-n::before{counter-increment:sec;content:"(" counter(sec,decimal-leading-zero) ")";color:var(--red-ink)}
+.sec-n[data-n]::before{content:"(" attr(data-n) ")"}
 h2{font-family:var(--font-display);font-weight:800;font-size:clamp(2.3rem,8.2vw,8rem);line-height:.92;letter-spacing:-.045em;text-transform:uppercase;overflow-wrap:break-word;hyphens:auto}
 h2[data-rv]{overflow:hidden;padding-block:.22em .06em;margin-block:-.18em -.06em}
 h2[data-rv]>span{display:block}
@@ -540,7 +541,7 @@ a.sx-row:focus-visible{outline:2px solid var(--red);outline-offset:4px}
 }
 
 /* ---------- подвал ---------- */
-.ftr{position:relative;margin-top:calc(var(--sheet) * -1);background:var(--ink);color:var(--on-dark);overflow:hidden;border-radius:var(--sheet) var(--sheet) 0 0}
+.ftr{position:relative;margin-top:calc(var(--sheet) * -1);background:var(--ink);color:var(--on-dark);overflow:hidden;border-radius:var(--sheet) var(--sheet) 0 0;border-top:1px solid var(--dark-line);box-shadow:0 -24px 48px -30px rgba(0,0,0,.6)}
 .ftr-in{padding-top:calc(clamp(40px,6vw,88px) + var(--sheet) * .4)!important}
 .ftr-in{padding-block:clamp(40px,6vw,88px) max(28px,env(safe-area-inset-bottom,0px))}
 .end{margin-bottom:clamp(28px,5vw,72px);font-family:var(--font-display);font-weight:800;font-size:clamp(3rem,17.5vw,17rem);line-height:.84;letter-spacing:-.05em;white-space:nowrap}
@@ -831,3 +832,26 @@ dialog:focus,dialog:focus-visible{outline:0}
 .hdr-hide:not(.menu-open) .tgbar.on{transform:translateY(140%)}
 /* касания без серой вспышки и без задержки двойного тапа */
 a,button,[role="button"],input,label{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+
+/* ---------- телефон: свой порядок «боль → работы → как работаем → заявка», игры в конце ---------- */
+.works-cta{display:none}
+@media (max-width:767px){
+  main{display:flex;flex-direction:column}
+  main>.hero{order:0}
+  main>#reel-sec{order:1}
+  main>#works{order:2;z-index:2}
+  main>#sites{order:3;z-index:3}
+  main>#process{order:4;z-index:4}
+  main>#contact{order:5;z-index:5}
+  main>#stop{order:6;z-index:6}
+  main>#play{order:7;z-index:7}
+  /* заголовки как на главном экране: строчными, плотно */
+  h2{text-transform:none;letter-spacing:-.05em;font-size:clamp(2.4rem,11vw,3.4rem);line-height:.95}
+  .ct-h{font-size:clamp(2.8rem,14vw,4rem)}
+  .sec-head{margin-bottom:24px}
+  .works-cta{display:flex;margin-top:18px;border-radius:999px}
+  /* главный экран: кнопка заявки главнее, «смотреть работы» — тише */
+  .hero .cta-row .btn{border-radius:999px}
+  .hero .cta-row .btn.ghost{min-height:48px;border-color:var(--line)}
+  .proc-end .btn,.stop-cta,.gcta .btn{border-radius:999px}
+}
